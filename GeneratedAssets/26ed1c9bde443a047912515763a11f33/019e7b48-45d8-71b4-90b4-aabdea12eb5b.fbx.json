@@ -1,0 +1,12 @@
+{
+    "asset": "26ed1c9bde443a047912515763a11f33",
+    "fileName": "019e7b48-45d8-71b4-90b4-aabdea12eb5b.fbx",
+    "prompt": "Humanoid character walking animation, natural loopable walk cycle.",
+    "negativePrompt": "",
+    "model": "uthana-text-to-motion",
+    "modelName": "Uthana Text to Motion",
+    "customSeed": 267959745,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "isTrimmed": false
+}

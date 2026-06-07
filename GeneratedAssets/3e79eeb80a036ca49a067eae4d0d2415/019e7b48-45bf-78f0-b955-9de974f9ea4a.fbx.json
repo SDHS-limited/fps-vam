@@ -1,0 +1,12 @@
+{
+    "asset": "3e79eeb80a036ca49a067eae4d0d2415",
+    "fileName": "019e7b48-45bf-78f0-b955-9de974f9ea4a.fbx",
+    "prompt": "Humanoid character running animation, energetic loopable run cycle.",
+    "negativePrompt": "",
+    "model": "uthana-text-to-motion",
+    "modelName": "Uthana Text to Motion",
+    "customSeed": 1005325377,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "isTrimmed": false
+}

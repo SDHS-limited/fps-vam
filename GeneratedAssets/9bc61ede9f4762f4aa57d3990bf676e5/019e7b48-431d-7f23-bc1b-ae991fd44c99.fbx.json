@@ -1,0 +1,12 @@
+{
+    "asset": "9bc61ede9f4762f4aa57d3990bf676e5",
+    "fileName": "019e7b48-431d-7f23-bc1b-ae991fd44c99.fbx",
+    "prompt": "Humanoid character idle animation, natural standing pose with subtle movement.",
+    "negativePrompt": "",
+    "model": "uthana-text-to-motion",
+    "modelName": "Uthana Text to Motion",
+    "customSeed": 1193234385,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "isTrimmed": false
+}
