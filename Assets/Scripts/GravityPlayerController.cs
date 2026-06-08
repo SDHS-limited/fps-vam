@@ -1,28 +1,22 @@
 using UnityEngine;
  
 /// <summary>
-/// 큐브 면 자동 감지 중력 시스템 - 개선판
+/// 큐브 면 자동 감지 중력 시스템
+/// - 공중에서도 큐브 면에 가까워지면 중력 전환
 ///
 /// [씬 셋업]
 /// 1. Player GameObject
 ///    - Rigidbody (useGravity OFF, Freeze Rotation XYZ 체크)
 ///    - CapsuleCollider (Radius: 0.4, Height: 1.8)
 ///    - 이 스크립트 추가
-///
-/// 2. Player 자식으로 Main Camera
-///    - Local Position: (0, 0.7, 0)
-///    - [Camera Transform] 슬롯에 드래그
-///
-/// 3. 큐브에 "Ground" Tag 설정
-///
-/// 4. Edit → Project Settings → Physics → Gravity → (0, 0, 0)
+/// 2. Player 자식 Main Camera → Local Position (0, 0.7, 0) → [Camera Transform] 슬롯
+/// 3. 큐브 Tag → "Ground"
+/// 4. Project Settings → Physics → Gravity → (0, 0, 0)
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class GravityPlayerController : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────
- 
     [Header("이동")]
     public float moveSpeed  = 7f;
     public float jumpForce  = 8f;
@@ -40,19 +34,18 @@ public class GravityPlayerController : MonoBehaviour
     public float pitchLimit = 80f;
  
     [Header("면 감지")]
-    public string    groundTag     = "Ground";
-    public LayerMask groundLayer   = ~0;
+    public string    groundTag   = "Ground";
+    public LayerMask groundLayer = ~0;
  
-    // 감지 거리: 캡슐 반지름 + 이 값만큼 앞을 본다
-    // 너무 크면 멀리서 전환, 너무 작으면 늦게 전환 → 0.3~0.6 권장
-    [Range(0.1f, 1.0f)]
-    public float faceCheckExtra  = 0.45f;
+    // 공중 포함 감지 거리. 클수록 멀리서 전환. 권장 1.0~2.0
+    [Range(0.5f, 100.0f)]
+    public float faceDetectRange = 1.5f;
  
-    // 면 전환 쿨다운 (너무 짧으면 진동, 너무 길면 둔함)
-    [Range(0.1f, 0.6f)]
-    public float faceCooldown    = 0.25f;
+    // 전환 쿨다운
+    [Range(0.1f, 0.5f)]
+    public float switchCooldown = 0.25f;
  
-    // ── 내부 상태 ─────────────────────────────────────────────────
+    // ── 내부 ──────────────────────────────────────────────────────
  
     Rigidbody       rb;
     CapsuleCollider col;
@@ -60,15 +53,19 @@ public class GravityPlayerController : MonoBehaviour
     Vector3 gravDir       = Vector3.down;
     Vector3 targetGravDir = Vector3.down;
  
-    bool  isGrounded = false;
-    bool  jumpQueued = false;
-    float pitch      = 0f;
+    bool  isGrounded  = false;
+    bool  jumpQueued  = false;
+    float pitch       = 0f;
+    float cooldown    = 0f;
+    float flashTimer  = 0f;
+    string faceLabel  = "Bottom";
  
-    float  cooldownTimer = 0f;
-    string faceLabel     = "Bottom";
-    float  flashTimer    = 0f;
- 
-    // ── 초기화 ────────────────────────────────────────────────────
+    static readonly Vector3[] SixDirs =
+    {
+        Vector3.down, Vector3.up,
+        Vector3.right, Vector3.left,
+        Vector3.forward, Vector3.back
+    };
  
     void Awake()
     {
@@ -90,8 +87,6 @@ public class GravityPlayerController : MonoBehaviour
         Cursor.visible   = false;
     }
  
-    // ── Update ────────────────────────────────────────────────────
- 
     void Update()
     {
         CameraLook();
@@ -104,11 +99,9 @@ public class GravityPlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
         { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
  
-        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
-        if (flashTimer    > 0f) flashTimer    -= Time.deltaTime;
+        if (cooldown   > 0f) cooldown   -= Time.deltaTime;
+        if (flashTimer > 0f) flashTimer -= Time.deltaTime;
     }
- 
-    // ── FixedUpdate ───────────────────────────────────────────────
  
     void FixedUpdate()
     {
@@ -116,7 +109,7 @@ public class GravityPlayerController : MonoBehaviour
                                 Time.fixedDeltaTime * gravRotateSpeed * 3f).normalized;
  
         CheckGround();
-        DetectFace();   // ← FixedUpdate에서 매 물리 프레임 감지
+        DetectFace();
         rb.AddForce(gravDir * gravStrength, ForceMode.Acceleration);
         Move();
  
@@ -126,86 +119,67 @@ public class GravityPlayerController : MonoBehaviour
         AlignBody();
     }
  
-    // ── 면 감지 (핵심 개선) ───────────────────────────────────────
-    //
-    // 개선 포인트:
-    //  1) FixedUpdate에서 호출 → 물리 프레임마다 체크
-    //  2) 캡슐 하단(발끝) + 캡슐 중심 두 곳에서 Ray 발사
-    //  3) SphereCast로 감지 면적 확대 (점이 아닌 구)
-    //  4) 현재 중력 방향 dot > 0.7 이상이면 스킵 (반대 방향만 스킵 제거)
-    //  5) 감지된 법선 중 현재 중력과 가장 다른 방향을 우선 선택
+    // ── 면 감지 ───────────────────────────────────────────────────
+    // 접근 방식: 큐브 중심→플레이어 방향으로 역산하지 않고
+    // 플레이어 주변 6방향 SphereCast + OverlapSphere 병행
+    // 지면 접촉 여부와 무관하게 항상 실행
  
     void DetectFace()
     {
-        if (cooldownTimer > 0f) return;
+        if (cooldown > 0f) return;
  
-        float   r         = col.radius;
-        float   extraDist = r + faceCheckExtra;
-        Vector3 center    = transform.TransformPoint(col.center);
-        // 캡슐 하단 (발끝 근처)
-        Vector3 bottom    = center + gravDir * (col.height * 0.5f - r);
+        Vector3 center = transform.TransformPoint(col.center);
+        float   r      = col.radius * 0.85f;
  
-        Vector3 bestNormal  = Vector3.zero;
-        float   bestDot     = 0.7f;   // 이 값보다 클 때만 전환 (노이즈 방지)
+        Vector3 bestDir  = Vector3.zero;
+        float   bestDist = float.MaxValue;  // 가장 가까운 면 우선
  
-        // 검사 출발점 2개: 중심 + 발끝
-        Vector3[] origins = { center, bottom };
- 
-        // 검사 방향: 6방향 모두 + 현재 중력 방향(아래쪽)도 포함
-        Vector3[] dirs = {
-            Vector3.down, Vector3.up,
-            Vector3.right, Vector3.left,
-            Vector3.forward, Vector3.back
-        };
- 
-        foreach (Vector3 origin in origins)
+        foreach (Vector3 dir in SixDirs)
         {
-            foreach (Vector3 dir in dirs)
+            // 현재 목표 중력과 같은 방향 → 이미 그 면이 바닥 → 스킵
+            if (Vector3.Dot(dir, targetGravDir) > 0.9f) continue;
+ 
+            // SphereCast: 캡슐 중심에서 각 방향으로
+            if (!Physics.SphereCast(
+                    center, r, dir,
+                    out RaycastHit hit,
+                    faceDetectRange,          // ← 공중 포함 넓은 감지 거리
+                    groundLayer,
+                    QueryTriggerInteraction.Ignore))
+                continue;
+ 
+            if (!hit.collider.CompareTag(groundTag)) continue;
+ 
+            // 가장 가까운 면 선택
+            if (hit.distance < bestDist)
             {
-                // 현재 목표 중력과 거의 같은 방향이면 스킵 (이미 그 면이 바닥)
-                if (Vector3.Dot(dir, targetGravDir) > 0.95f) continue;
- 
-                // SphereCast: 구 반지름 r * 0.8으로 넓게 감지
-                if (!Physics.SphereCast(
-                        origin, r * 0.8f, dir,
-                        out RaycastHit hit, extraDist,
-                        groundLayer, QueryTriggerInteraction.Ignore))
-                    continue;
- 
-                if (!hit.collider.CompareTag(groundTag)) continue;
- 
-                // 법선 반대가 새 중력 방향
-                Vector3 newGrav = -hit.normal;
- 
-                // 현재 목표 중력과 얼마나 다른지 (다를수록 전환 의미 있음)
-                float diff = 1f - Vector3.Dot(newGrav, targetGravDir);
-                if (diff > bestDot)
-                {
-                    bestDot    = diff;
-                    bestNormal = newGrav;
-                }
+                bestDist = hit.distance;
+                bestDir  = -hit.normal;   // 법선 반대 = 새 중력 방향
             }
         }
  
-        // 가장 유의미한 새 중력 방향으로 전환
-        if (bestNormal != Vector3.zero)
-            SwitchGravity(bestNormal);
+        if (bestDir == Vector3.zero) return;
+ 
+        // 현재 목표 중력과 실질적으로 다를 때만 전환
+        if (Vector3.Dot(bestDir, targetGravDir) > 0.95f) return;
+ 
+        SwitchGravity(bestDir);
     }
  
     void SwitchGravity(Vector3 newDir)
     {
-        // 기존 수직 속도 감쇠
+        // 기존 중력 방향 속도 감쇠 (부드러운 전환)
         Vector3 vel  = rb.linearVelocity;
         float   comp = Vector3.Dot(vel, gravDir);
-        rb.linearVelocity = vel - gravDir * comp * 0.55f;
+        rb.linearVelocity = vel - gravDir * comp * 0.6f;
  
         targetGravDir = newDir;
         faceLabel     = GetFaceLabel(newDir);
-        cooldownTimer = faceCooldown;
+        cooldown      = switchCooldown;
         flashTimer    = 0.25f;
     }
  
-    // ── 카메라 룩 ─────────────────────────────────────────────────
+    // ── 카메라 ────────────────────────────────────────────────────
  
     void CameraLook()
     {
@@ -217,7 +191,7 @@ public class GravityPlayerController : MonoBehaviour
         transform.Rotate(-gravDir, mx, Space.World);
  
         pitch = Mathf.Clamp(pitch - my, -pitchLimit, pitchLimit);
-        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(pitch, pitch, 0f);
     }
  
     // ── 이동 ──────────────────────────────────────────────────────
@@ -316,16 +290,16 @@ public class GravityPlayerController : MonoBehaviour
             { fontSize = 13, normal = { textColor = Color.white } };
  
         GUI.Box(new Rect(10, 10, 220, 120), GUIContent.none);
-        GUI.Label(new Rect(18, 14, 200, 20), "Gravity System",                             title);
-        GUI.Label(new Rect(18, 34, 200, 20), $"현재 면:  {faceLabel}",                    body);
+        GUI.Label(new Rect(18, 14, 200, 20), "Gravity System",                                  title);
+        GUI.Label(new Rect(18, 34, 200, 20), $"현재 면:  {faceLabel}",                         body);
         GUI.Label(new Rect(18, 54, 200, 20), $"속도:     {rb.linearVelocity.magnitude:F1} m/s", body);
         GUI.Label(new Rect(18, 74, 200, 20), $"지면:     {(isGrounded ? "접지 ✓" : "공중 ✗")}", body);
-        GUI.Label(new Rect(18, 94, 200, 20), $"쿨다운:   {Mathf.Max(0f, cooldownTimer):F2}s", body);
+        GUI.Label(new Rect(18, 94, 200, 20), $"쿨다운:   {Mathf.Max(0f, cooldown):F2}s",        body);
  
         GUI.Box(new Rect(10, 138, 220, 70), GUIContent.none);
-        GUI.Label(new Rect(18, 142, 200, 20), "조작법",              title);
-        GUI.Label(new Rect(18, 162, 200, 20), "WASD      이동",      body);
-        GUI.Label(new Rect(18, 182, 200, 20), "Space     점프",      body);
+        GUI.Label(new Rect(18, 142, 200, 20), "조작법",         title);
+        GUI.Label(new Rect(18, 162, 200, 20), "WASD   이동",    body);
+        GUI.Label(new Rect(18, 182, 200, 20), "Space  점프",    body);
  
         float cx = Screen.width * .5f, cy = Screen.height * .5f;
         GUI.color = flashTimer > 0f ? new Color(0.4f, 0.8f, 1f) : Color.white;
@@ -341,21 +315,18 @@ public class GravityPlayerController : MonoBehaviour
     {
         if (!col) col = GetComponent<CapsuleCollider>();
         Vector3 center = transform.TransformPoint(col.center);
-        Vector3 bottom = center + gravDir * (col.height * 0.5f - col.radius);
  
-        // 감지 구 범위
         Gizmos.color = Color.yellow;
-        foreach (var dir in new[]{ Vector3.down, Vector3.up,
-                                   Vector3.right, Vector3.left,
-                                   Vector3.forward, Vector3.back })
-        {
-            Gizmos.DrawRay(center, dir * (col.radius + faceCheckExtra));
-            Gizmos.DrawRay(bottom, dir * (col.radius + faceCheckExtra));
-        }
+        foreach (var dir in SixDirs)
+            Gizmos.DrawRay(center, dir * faceDetectRange);
  
-        // 현재 중력
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(transform.position, gravDir * 3f);
+ 
+        // 감지 구 시각화
+        Gizmos.color = new Color(1f, 1f, 0f, 0.1f);
+        Gizmos.DrawWireSphere(center, faceDetectRange);
     }
 #endif
 }
+ 

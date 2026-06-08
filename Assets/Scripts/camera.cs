@@ -3,11 +3,12 @@ using UnityEngine;
 public class camera : MonoBehaviour
 {
     [Header("Target")]
-    public Transform playerBody; // 플레이어 몸통 오브젝트 (부모)
+    [SerializeField] Transform playerBody; // 플레이어 몸통 오브젝트 (부모)
+    [SerializeField] Transform arm;
 
     [Header("Sensitivity")]
-    public float mouseSensitivity = 100f;
-    public float clampAngle = 85f; // 상하 최대 회전 각도 제한
+    [SerializeField] float mouseSensitivity = 100f;
+    [SerializeField] float clampAngle = 85f; // 상하 최대 회전 각도 제한
 
     private float verticalRotation = 0f;
 
@@ -36,5 +37,7 @@ public class camera : MonoBehaviour
 
         // 로컬 X축 기준으로 카메라만 상하 회전을 적용합니다.
         transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        
+        // arm.localRotation = transform.localRotation;
     }
 }
