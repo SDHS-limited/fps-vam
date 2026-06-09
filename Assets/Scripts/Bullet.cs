@@ -1,110 +1,124 @@
+// Bullet.cs
+using System;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-[Header("총알 설정")]
-    public float speed       = 120f;    // 총알 속도 (m/s)
-    public float damage      = 75f;     // 피해량
-    public float lifeTime    = 3f;      // 최대 생존 시간 (초)
-    public float gravity     = 3f;      // 중력 영향 (0 = 직선 비행)
- 
+    [Header("총알 설정")]
+    public float speed    = 120f;
+    public float damage   = 75f;
+    public float lifeTime = 3f;
+    public float gravity  = 2f;
+
     [Header("충돌 이펙트")]
-    public GameObject hitEffectPrefab;      // 충돌 파티클
-    public GameObject bulletHolePrefab;     // 탄흔 데칼
-    public TrailRenderer bulletTrail;       // 총알 궤적
- 
-    private Vector3   velocity;
-    private bool      hasHit = false;
- 
-    // ── 초기화 (DoubleMagnumAnimator 에서 호출)
+    public GameObject hitEffectPrefab;
+    public GameObject bulletHolePrefab;
+
+    [Header("땅 설정")]
+    public string groundTag = "Ground";
+    public string UIWall = "Ground2";
+    private Vector3 velocity;
+    private bool    hasHit = false;
+
     public void Init(Vector3 direction, float spd, float dmg)
     {
-        speed  = spd;
-        damage = dmg;
+        speed    = spd;
+        damage   = dmg;
         velocity = direction.normalized * speed;
+        hasHit   = false;
     }
- 
-    void Start()
+
+    void OnEnable()
     {
-        // Init 없이 사용할 때 기본값
-        if (velocity == Vector3.zero)
-            velocity = transform.forward * speed;
- 
-        Destroy(gameObject, lifeTime);
+        hasHit = false;
+        Invoke(nameof(ReturnToPool), lifeTime);
     }
- 
+
+    void OnDisable()
+    {
+        CancelInvoke();
+        velocity = Vector3.zero;
+    }
+
     void Update()
     {
         if (hasHit) return;
- 
-        // 중력 적용
+
         velocity += Vector3.down * gravity * Time.deltaTime;
- 
-        // 이동
         Vector3 move = velocity * Time.deltaTime;
- 
-        // ── 이동 중 레이캐스트로 관통 체크 (빠른 총알 터널링 방지)
+
         if (Physics.Raycast(transform.position, move.normalized,
-            out RaycastHit hit, move.magnitude + 0.1f))
+            out RaycastHit hit, move.magnitude + 0.05f))
         {
-            OnHit(hit);
+            if (hit.collider.CompareTag(groundTag))
+                OnGroundHit(hit);   // 땅 → 파티클만
+            else if(hit.collider.CompareTag(UIWall))
+                OnGroundHit(hit);
+            else
+                OnHit(hit);         // 그 외 → 기존 처리
+            return;
         }
-        else
-        {
-            transform.position += move;
-        }
- 
-        // 총알 방향을 속도 방향으로 회전
-        if (velocity != Vector3.zero)
+
+        transform.position += move;
+
+        if (velocity.sqrMagnitude > 0.01f)
             transform.rotation = Quaternion.LookRotation(velocity);
     }
- 
-    void OnHit(RaycastHit hit)
+
+    // ── 땅에 닿았을 때: 총알 숨기고 파티클만 재생
+    void OnGroundHit(RaycastHit hit)
     {
         hasHit = true;
- 
-        // 피해 적용
-        //hit.collider.GetComponent<IDamageable>()?.TakeDamage(damage);
- 
-        // 물리 밀기
-        hit.collider.GetComponent<Rigidbody>()
-            ?.AddForce(-hit.normal * 300f);
- 
-        // 충돌 파티클
+
+        // 총알 메시만 숨기기 (파티클은 별도 오브젝트라 영향 없음)
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = false;
+
+        // 파티클 재생
         if (hitEffectPrefab)
         {
             var fx = Instantiate(hitEffectPrefab,
                 hit.point, Quaternion.LookRotation(hit.normal));
             Destroy(fx, 2f);
         }
- 
-        // 탄흔
+
+        // 파티클 재생 후 풀 반환
+        Invoke(nameof(ReturnToPool), 0.1f);
+    }
+
+    // ── 일반 충돌
+    void OnHit(RaycastHit hit)
+    {
+        hasHit = true;
+
+       // hit.collider.GetComponent<IDamageable>()?.TakeDamage(damage);
+        hit.collider.GetComponent<Rigidbody>()?.AddForce(-hit.normal * 300f);
+
+        if (hitEffectPrefab)
+        {
+            var fx = Instantiate(hitEffectPrefab,
+                hit.point, Quaternion.LookRotation(hit.normal));
+            Destroy(fx, 2f);
+        }
+
         if (bulletHolePrefab)
         {
             var hole = Instantiate(bulletHolePrefab,
                 hit.point + hit.normal * 0.001f,
                 Quaternion.LookRotation(hit.normal));
-            // 탄흔을 맞은 오브젝트에 붙이기 (움직이는 적에도 따라감)
             hole.transform.SetParent(hit.collider.transform);
             Destroy(hole, 8f);
         }
- 
-        // 트레일 남기고 오브젝트 제거
-        if (bulletTrail)
-        {
-            bulletTrail.transform.SetParent(null); // 트레일 분리
-            Destroy(bulletTrail.gameObject, bulletTrail.time + 0.1f);
-        }
- 
-        Destroy(gameObject);
+
+        ReturnToPool();
     }
- 
-    // 벽/바닥에 박혔을 때 트리거도 처리
-    void OnTriggerEnter(Collider other)
+
+    void ReturnToPool()
     {
-        if (hasHit) return;
-        var fakeHit = new RaycastHit();
-        //other.GetComponent<IDamageable>()?.TakeDamage(damage);
-        Destroy(gameObject);
+        // 풀 반환 전 Renderer 다시 켜두기 (재사용 대비)
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.enabled = true;
+
+        gameObject.SetActive(false);
     }
 }
