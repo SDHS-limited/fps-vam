@@ -2,10 +2,8 @@ using UnityEngine;
 
 public enum FaceType
 {
-    Start,
-    Ability1,
-    Ability2,
-    Ability3,
+    Phase,
+    Ability,
 }
 
 public class CubeFace : MonoBehaviour

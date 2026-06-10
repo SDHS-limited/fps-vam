@@ -121,4 +121,16 @@ public class Bullet : MonoBehaviour
 
         gameObject.SetActive(false);
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        CubeFace face = collision.collider.GetComponent<CubeFace>();
+
+        if (face != null)
+        {
+            GameManager.Instance.FaceHit(face);
+        }
+
+        Destroy(gameObject);
+    }
 }
