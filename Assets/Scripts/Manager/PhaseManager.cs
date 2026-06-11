@@ -7,11 +7,17 @@ public class PhaseManager : MonoBehaviour
 {
     public int currentPhase = 1;
     public TextMeshProUGUI text;
+    public Animator animator;
+
+    void Start()
+    {
+        text.text = "Phase" + currentPhase;
+    }
 
     public void StartPhase()
     {
-        text.text = "Phase" + currentPhase;
-
         currentPhase++;
+        animator.SetBool("clear", true);
+        //페이즈 시작
     }
 }

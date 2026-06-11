@@ -5043,6 +5043,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PhaseManager
   currentPhase: 1
   text: {fileID: 1912007625}
+  animator: {fileID: 656339744}
 --- !u!114 &1965545397
 MonoBehaviour:
   m_ObjectHideFlags: 0
