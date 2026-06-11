@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     public float damage   = 75f;
     public float lifeTime = 3f;
     public float gravity  = 2f;
+    
 
     [Header("충돌 이펙트")]
     public GameObject hitEffectPrefab;
@@ -26,6 +27,7 @@ public class Bullet : MonoBehaviour
         damage   = dmg;
         velocity = direction.normalized * speed;
         hasHit   = false;
+        
     }
 
     void OnEnable()
@@ -88,30 +90,28 @@ public class Bullet : MonoBehaviour
 
     // ── 일반 충돌
     void OnHit(RaycastHit hit)
+{
+    hasHit = true;
+
+    CubeFace face = hit.collider.GetComponent<CubeFace>();
+
+    if(face != null)
     {
-        hasHit = true;
-
-       // hit.collider.GetComponent<IDamageable>()?.TakeDamage(damage);
-        hit.collider.GetComponent<Rigidbody>()?.AddForce(-hit.normal * 300f);
-
-        if (hitEffectPrefab)
-        {
-            var fx = Instantiate(hitEffectPrefab,
-                hit.point, Quaternion.LookRotation(hit.normal));
-            Destroy(fx, 2f);
-        }
-
-        if (bulletHolePrefab)
-        {
-            var hole = Instantiate(bulletHolePrefab,
-                hit.point + hit.normal * 0.001f,
-                Quaternion.LookRotation(hit.normal));
-            hole.transform.SetParent(hit.collider.transform);
-            Destroy(hole, 8f);
-        }
-
-        ReturnToPool();
+        GameManager.Instance.FaceHit(face);
     }
+
+    if (hitEffectPrefab)
+    {
+        var fx = Instantiate(
+            hitEffectPrefab,
+            hit.point,
+            Quaternion.LookRotation(hit.normal));
+
+        Destroy(fx, 2f);
+    }
+
+    ReturnToPool();
+}
 
     void ReturnToPool()
     {
@@ -131,6 +131,6 @@ public class Bullet : MonoBehaviour
             GameManager.Instance.FaceHit(face);
         }
 
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

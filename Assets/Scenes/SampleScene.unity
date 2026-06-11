@@ -682,6 +682,7 @@ GameObject:
   - component: {fileID: 238139879}
   - component: {fileID: 238139882}
   - component: {fileID: 238139883}
+  - component: {fileID: 238139884}
   m_Layer: 3
   m_Name: Selete 1
   m_TagString: Untagged
@@ -795,19 +796,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 238139877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4de462d0a11e9a43b76c0f79dd833b9, type: 3}
+  m_Script: {fileID: 11500000, guid: 46ab25832a2ffab48b31442ef11d5532, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityPanel
   abilityName: {fileID: 21535770}
   buffText: {fileID: 1625883741}
   nuffText: {fileID: 1685226500}
-  abilities: []
   currentAbility:
     abilityName: 
     buffText: 
     nuffText: 
     damageBonus: 0
     hpPenalty: 0
+--- !u!65 &238139884
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238139877}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2887273, y: 2.8158464, z: 1.0122337}
+  m_Center: {x: -0.13613391, y: 0.23102427, z: -0.006116867}
 --- !u!1 &265287176
 GameObject:
   m_ObjectHideFlags: 0
@@ -1114,6 +1135,7 @@ GameObject:
   - component: {fileID: 406312220}
   - component: {fileID: 406312223}
   - component: {fileID: 406312224}
+  - component: {fileID: 406312225}
   m_Layer: 3
   m_Name: Selete 2
   m_TagString: Untagged
@@ -1217,7 +1239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fda4ea21e3726b448b057d14d3c3727e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeFace
-  faceType: 1
+  faceType: 2
 --- !u!114 &406312224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1227,19 +1249,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 406312218}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4de462d0a11e9a43b76c0f79dd833b9, type: 3}
+  m_Script: {fileID: 11500000, guid: 46ab25832a2ffab48b31442ef11d5532, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
-  abilityName: {fileID: 0}
-  buffText: {fileID: 0}
-  nuffText: {fileID: 0}
-  abilities: []
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityPanel
+  abilityName: {fileID: 223052561}
+  buffText: {fileID: 1264569902}
+  nuffText: {fileID: 1217625718}
   currentAbility:
     abilityName: 
     buffText: 
     nuffText: 
     damageBonus: 0
     hpPenalty: 0
+--- !u!65 &406312225
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 406312218}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.0082905, y: 3.2439694, z: 1}
+  m_Center: {x: -0.119680166, y: 0.0067842007, z: -7.559896e-17}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1497,6 +1539,7 @@ GameObject:
   - component: {fileID: 576405536}
   - component: {fileID: 576405539}
   - component: {fileID: 576405540}
+  - component: {fileID: 576405541}
   m_Layer: 3
   m_Name: Selete 3
   m_TagString: Untagged
@@ -1600,7 +1643,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fda4ea21e3726b448b057d14d3c3727e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeFace
-  faceType: 1
+  faceType: 3
 --- !u!114 &576405540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1610,19 +1653,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 576405534}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4de462d0a11e9a43b76c0f79dd833b9, type: 3}
+  m_Script: {fileID: 11500000, guid: 46ab25832a2ffab48b31442ef11d5532, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
-  abilityName: {fileID: 0}
-  buffText: {fileID: 0}
-  nuffText: {fileID: 0}
-  abilities: []
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityPanel
+  abilityName: {fileID: 1437534116}
+  buffText: {fileID: 159491030}
+  nuffText: {fileID: 1485758854}
   currentAbility:
     abilityName: 
     buffText: 
     nuffText: 
     damageBonus: 0
     hpPenalty: 0
+--- !u!65 &576405541
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576405534}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.9482713, y: 3.06951, z: 1}
+  m_Center: {x: -0.14785933, y: -0.07195306, z: 0}
 --- !u!1 &608257555
 GameObject:
   m_ObjectHideFlags: 0
@@ -1937,6 +2000,7 @@ GameObject:
   - component: {fileID: 656339742}
   - component: {fileID: 656339741}
   - component: {fileID: 656339740}
+  - component: {fileID: 656339744}
   m_Layer: 3
   m_Name: SeleteUI
   m_TagString: Ground2
@@ -2041,6 +2105,28 @@ Transform:
   - {fileID: 576405535}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &656339744
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656339739}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6767012b2b48f3e44b4893bfbf1ed2e1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2621,8 +2707,8 @@ GameObject:
   - component: {fileID: 1133555782}
   - component: {fileID: 1133555781}
   - component: {fileID: 1133555780}
-  - component: {fileID: 1133555784}
   - component: {fileID: 1133555783}
+  - component: {fileID: 1133555784}
   m_Layer: 3
   m_Name: StartPanal
   m_TagString: Untagged
@@ -2727,20 +2813,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeFace
   faceType: 0
---- !u!114 &1133555784
-MonoBehaviour:
+--- !u!65 &1133555784
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1133555778}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c581d1ec168ed3e4c90ac7c2746d9b75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PhaseManager
-  currentPhase: 1
-  text: {fileID: 1912007625}
+  serializedVersion: 3
+  m_Size: {x: 1.9438632, y: 3.0881739, z: 0.5131459}
+  m_Center: {x: -0.05445462, y: 0.14916015, z: -0.2434271}
 --- !u!1 &1198575567
 GameObject:
   m_ObjectHideFlags: 0
@@ -4911,7 +5004,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1965545395}
-  - component: {fileID: 1965545394}
+  - component: {fileID: 1965545398}
+  - component: {fileID: 1965545397}
+  - component: {fileID: 1965545396}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -4919,20 +5014,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1965545394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1965545393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58c26af2153a40b4d9854397232da81a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  abilityManager: {fileID: 238139883}
-  phaseManager: {fileID: 1133555784}
 --- !u!4 &1965545395
 Transform:
   m_ObjectHideFlags: 0
@@ -4948,6 +5029,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1965545396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965545393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c581d1ec168ed3e4c90ac7c2746d9b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseManager
+  currentPhase: 1
+  text: {fileID: 1912007625}
+--- !u!114 &1965545397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965545393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58c26af2153a40b4d9854397232da81a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  abilityManager: {fileID: 1965545398}
+  phaseManager: {fileID: 1965545396}
+--- !u!114 &1965545398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965545393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4de462d0a11e9a43b76c0f79dd833b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
+  abilities: []
+  panel1: {fileID: 238139883}
+  panel2: {fileID: 406312224}
+  panel3: {fileID: 576405540}
 --- !u!1 &2010318562
 GameObject:
   m_ObjectHideFlags: 0
