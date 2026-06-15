@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case FaceType.Phase:
-                phaseManager.StartPhase();
+                phaseManager.StartNextPhase();
                 break;
         }
     }

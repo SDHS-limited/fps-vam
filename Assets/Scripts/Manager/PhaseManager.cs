@@ -1,23 +1,62 @@
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PhaseManager : MonoBehaviour
 {
     public int currentPhase = 1;
-    public TextMeshProUGUI text;
-    public Animator animator;
 
-    void Start()
+    public Animator anim;
+
+    public AbilityManager abilityManager;
+    public EnemySpawner enemySpawner;
+
+    bool waitingForUpgrade = true;
+
+    public int[] phaseScores =
     {
-        text.text = "Phase" + currentPhase;
+        100,
+        300,
+        600,
+        1000
+    };
+
+    public void CheckPhaseProgress(int score)
+    {
+        if(waitingForUpgrade)
+            return;
+
+        if(currentPhase - 1 >= phaseScores.Length)
+            return;
+
+        if(score >= phaseScores[currentPhase - 1])
+        {
+            OpenUpgradeWall();
+        }
     }
 
-    public void StartPhase()
+    void OpenUpgradeWall()
     {
+        waitingForUpgrade = true;
+
+        anim.SetBool("clear", false);
+
+        abilityManager.GenerateAbilities();
+
+        Debug.Log("능력 선택");
+    }
+
+    public void StartNextPhase()
+    {
+        if(!waitingForUpgrade)
+            return;
+
+        waitingForUpgrade = false;
+
         currentPhase++;
-        animator.SetBool("clear", true);
-        //페이즈 시작
+
+        anim.SetBool("clear", true);
+
+        Debug.Log("Phase " + currentPhase);
+
+        enemySpawner.SpawnWave();
     }
 }

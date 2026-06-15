@@ -2192,7 +2192,7 @@ GameObject:
   - component: {fileID: 860844644}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2344,6 +2344,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  dashForce: 20
+  dashCooldown: 1
   faceDetectRange: 50
   switchCooldown: 0.25
 --- !u!1 &1009380423
@@ -2640,15 +2642,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8123074067890843863, guid: 5218f28aa11fd5d4a9d409d2d885c3c8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.00136
+      value: 0.001278
       objectReference: {fileID: 0}
     - target: {fileID: 8123074067890843863, guid: 5218f28aa11fd5d4a9d409d2d885c3c8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.00023
+      value: 0.000486
       objectReference: {fileID: 0}
     - target: {fileID: 8123074067890843863, guid: 5218f28aa11fd5d4a9d409d2d885c3c8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.01792
+      value: 0.01805
       objectReference: {fileID: 0}
     - target: {fileID: 8123074067890843863, guid: 5218f28aa11fd5d4a9d409d2d885c3c8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3453,6 +3455,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1417960953}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1421261964
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1421261965}
+  m_Layer: 0
+  m_Name: Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1421261965
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421261964}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.89, y: 26.01, z: -14.833}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1422814509
 GameObject:
   m_ObjectHideFlags: 0
@@ -4721,7 +4754,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 80
+  field of view: 87
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -5007,6 +5040,8 @@ GameObject:
   - component: {fileID: 1965545398}
   - component: {fileID: 1965545397}
   - component: {fileID: 1965545396}
+  - component: {fileID: 1965545399}
+  - component: {fileID: 1965545400}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -5041,9 +5076,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c581d1ec168ed3e4c90ac7c2746d9b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseManager
-  currentPhase: 1
-  text: {fileID: 1912007625}
-  animator: {fileID: 656339744}
+  currentPhase: 0
+  anim: {fileID: 656339744}
+  abilityManager: {fileID: 1965545398}
+  enemySpawner: {fileID: 1965545399}
+  phaseScores: 640000002c01000058020000e8030000
 --- !u!114 &1965545397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5074,6 +5111,38 @@ MonoBehaviour:
   panel1: {fileID: 238139883}
   panel2: {fileID: 406312224}
   panel3: {fileID: 576405540}
+--- !u!114 &1965545399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965545393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2f3aecc755291a4f873cbad77e54984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  enemyPrefab: {fileID: 3128183325454233583, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+  spawnPoints:
+  - {fileID: 1421261965}
+  enemyCount: 1000
+  spawnDelay: 2.3
+  aliveEnemies: 4
+--- !u!114 &1965545400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965545393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4610748956016e4d98c8e088cb715da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
+  score: 0
+  phaseManager: {fileID: 1965545396}
 --- !u!1 &2010318562
 GameObject:
   m_ObjectHideFlags: 0
@@ -5125,12 +5194,12 @@ MonoBehaviour:
   recoilRight: {fileID: 635292714}
   bulletPrefab: {fileID: 469325102612236275, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
   bulletSpeed: 120
-  bulletDamage: 75
+  bulletDamage: 50
   fireRate: 0.1
   muzzleFlashLeft: {fileID: 0}
   muzzleFlashRight: {fileID: 0}
   shootSound: {fileID: 0}
-  poolSize: 20
+  poolSize: 30
 --- !u!1 &2088176271
 GameObject:
   m_ObjectHideFlags: 0
@@ -5810,3 +5879,4 @@ SceneRoots:
   - {fileID: 656339743}
   - {fileID: 1679715659}
   - {fileID: 1965545395}
+  - {fileID: 1421261965}

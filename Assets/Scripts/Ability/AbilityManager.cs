@@ -9,6 +9,12 @@ public class AbilityManager : MonoBehaviour
     public AbilityPanel panel2;
     public AbilityPanel panel3;
 
+    public static AbilityManager Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
     public void GenerateAbilities()
 {
     panel1.SetAbility(

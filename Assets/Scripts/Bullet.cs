@@ -95,6 +95,14 @@ public class Bullet : MonoBehaviour
 
     CubeFace face = hit.collider.GetComponent<CubeFace>();
 
+    Enemy enemy =
+    hit.collider.GetComponent<Enemy>();
+    
+    if(enemy != null)
+    {
+        enemy.TakeDamage(damage);
+    }
+
     if(face != null)
     {
         GameManager.Instance.FaceHit(face);

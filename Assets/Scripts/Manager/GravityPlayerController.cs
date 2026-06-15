@@ -36,6 +36,12 @@ public class GravityPlayerController : MonoBehaviour
     [Header("면 감지")]
     public string    groundTag   = "Ground";
     public LayerMask groundLayer = ~0;
+
+    [Header("대쉬")]
+    public float dashForce = 20f;
+    public float dashCooldown = 1f;
+
+    private bool canDash = true;
  
     // 공중 포함 감지 거리. 클수록 멀리서 전환. 권장 1.0~2.0
     [Range(0.5f, 100.0f)]
@@ -93,6 +99,11 @@ public class GravityPlayerController : MonoBehaviour
  
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             jumpQueued = true;
+
+        if (Input.GetMouseButtonDown(1) && canDash)
+        {
+            Dash();
+        }
  
         if (Input.GetKeyDown(KeyCode.Escape))
         { Cursor.lockState = CursorLockMode.None;   Cursor.visible = true; }
@@ -164,6 +175,47 @@ public class GravityPlayerController : MonoBehaviour
         if (Vector3.Dot(bestDir, targetGravDir) > 0.95f) return;
  
         SwitchGravity(bestDir);
+    }
+
+    void Dash()
+    {
+        canDash = false;
+
+        // 카메라 기준 방향
+        Vector3 forward =
+            Vector3.ProjectOnPlane(
+                cameraTransform.forward,
+                gravDir).normalized;
+
+        Vector3 right =
+            Vector3.ProjectOnPlane(
+                cameraTransform.right,
+                gravDir).normalized;
+
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+
+        Vector3 dashDir = (forward * v + right * h).normalized;
+
+        // 입력 없으면 바라보는 방향
+        if (dashDir == Vector3.zero)
+            dashDir = forward;
+
+        // 현재 중력 방향 속도 유지
+        Vector3 vel = rb.linearVelocity;
+        Vector3 gravVel =
+            gravDir * Vector3.Dot(vel, gravDir);
+
+        rb.AddForce(
+            dashDir * dashForce,
+            ForceMode.VelocityChange);
+
+        Invoke(nameof(ResetDash), dashCooldown);
+    }
+
+    void ResetDash()
+    {
+        canDash = true;
     }
  
     void SwitchGravity(Vector3 newDir)
