@@ -10,6 +10,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     [Header("── 팔 반동 (각각 연결) ──")]
     public ArmRecoil recoilLeft;    // L 오브젝트의 ArmRecoil
     public ArmRecoil recoilRight;   // shoulder.R 오브젝트의 ArmRecoil
+    public CameraShake cameraShake;    // 카메라 흔들림 (양쪽 공통)asd
  
     [Header("── 총알 설정 ──")]
     public GameObject bulletPrefab;
@@ -43,6 +44,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime)
             Shoot();
+            
     }
  
     void Shoot()
@@ -62,6 +64,7 @@ public class DoubleMagnumShooter : MonoBehaviour
         // ★ 발사한 쪽 팔만 반동
         if (useLeft)  recoilLeft?.TriggerRecoil();
         else          recoilRight?.TriggerRecoil();
+        cameraShake?.Shake(0.1f, 0.1f);
     }
  
     void SpawnBullet(Transform barrel)

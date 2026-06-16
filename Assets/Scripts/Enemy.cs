@@ -17,16 +17,15 @@ public class Enemy : MonoBehaviour
 
     public ScoreManager scoreManager;
 
-    public void Init(ScoreManager manager)
-    {
-        scoreManager = manager;
-    }
+   
 
     void Start()
     {
         hp = maxHp;
 
         gravity = GetComponent<EnemyGravity>();
+
+        scoreManager = FindObjectOfType<ScoreManager>();
 
         GameObject obj =
             GameObject.FindGameObjectWithTag("Player");
@@ -108,7 +107,22 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
-        scoreManager.AddScore(scoreValue);
+        Debug.Log("Enemy.Die called for " + gameObject.name + ", scoreValue=" + scoreValue);
+
+        if (scoreManager == null)
+        {
+            Debug.LogWarning("Enemy.Die: 'scoreManager' is null. Attempting to find ScoreManager in scene.");
+            scoreManager = FindObjectOfType<ScoreManager>();
+        }
+
+        if (scoreManager != null)
+        {
+            scoreManager.AddScore(scoreValue);
+        }
+        else
+        {
+            Debug.LogError("Enemy.Die: Could not find ScoreManager; score not awarded.");
+        }
 
         Destroy(gameObject);
     }

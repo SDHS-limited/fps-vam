@@ -1,5 +1,7 @@
+using UnityEngine;
+
 [System.Serializable]
-public class Ability
+public class Ability : ScriptableObject
 {
     public string abilityName;
 

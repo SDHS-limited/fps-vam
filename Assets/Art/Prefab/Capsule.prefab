@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 3128183325454233583}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.06, y: 15.87, z: -14.13171}
+  m_LocalPosition: {x: 4.03461, y: 7.5, z: -14.69383}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -159,6 +159,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 5
   attackRange: 2
+  scoreValue: 10
+  scoreManager: {fileID: 0}
 --- !u!114 &2963609021934845608
 MonoBehaviour:
   m_ObjectHideFlags: 0

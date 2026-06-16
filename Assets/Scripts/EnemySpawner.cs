@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
 
     public float spawnDelay = 1f;
     public int aliveEnemies;
-
+    public PhaseManager phaseManager;
     public static EnemySpawner Instance;
 
     private void Awake()
@@ -22,6 +22,7 @@ public class EnemySpawner : MonoBehaviour
     
     public void SpawnWave()
     {
+        if(phaseManager.waitingForUpgrade) return;
         StartCoroutine(SpawnWaveRoutine());
         aliveEnemies++;
     }
