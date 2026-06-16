@@ -138,6 +138,10 @@ public class GravityPlayerController : MonoBehaviour
     void DetectFace()
     {
         if (cooldown > 0f) return;
+
+            // 바닥에 붙어있으면 중력 변경 금지
+    // if (isGrounded)
+    //     return;
  
         Vector3 center = transform.TransformPoint(col.center);
         float   r      = col.radius * 0.85f;
@@ -148,7 +152,8 @@ public class GravityPlayerController : MonoBehaviour
         foreach (Vector3 dir in SixDirs)
         {
             // 현재 목표 중력과 같은 방향 → 이미 그 면이 바닥 → 스킵
-            if (Vector3.Dot(dir, targetGravDir) > 0.9f) continue;
+            if (Vector3.Dot(dir, -gravDir) > 0.8f)
+    continue;
  
             // SphereCast: 캡슐 중심에서 각 방향으로
             if (!Physics.SphereCast(
@@ -341,17 +346,17 @@ public class GravityPlayerController : MonoBehaviour
         var body = new GUIStyle(GUI.skin.label)
             { fontSize = 13, normal = { textColor = Color.white } };
  
-        GUI.Box(new Rect(10, 10, 220, 120), GUIContent.none);
-        GUI.Label(new Rect(18, 14, 200, 20), "Gravity System",                                  title);
-        GUI.Label(new Rect(18, 34, 200, 20), $"현재 면:  {faceLabel}",                         body);
-        GUI.Label(new Rect(18, 54, 200, 20), $"속도:     {rb.linearVelocity.magnitude:F1} m/s", body);
-        GUI.Label(new Rect(18, 74, 200, 20), $"지면:     {(isGrounded ? "접지 ✓" : "공중 ✗")}", body);
-        GUI.Label(new Rect(18, 94, 200, 20), $"쿨다운:   {Mathf.Max(0f, cooldown):F2}s",        body);
+        // GUI.Box(new Rect(10, 10, 220, 120), GUIContent.none);
+        // GUI.Label(new Rect(18, 14, 200, 20), "Gravity System",                                  title);
+        // GUI.Label(new Rect(18, 34, 200, 20), $"현재 면:  {faceLabel}",                         body);
+        // GUI.Label(new Rect(18, 54, 200, 20), $"속도:     {rb.linearVelocity.magnitude:F1} m/s", body);
+        // GUI.Label(new Rect(18, 74, 200, 20), $"지면:     {(isGrounded ? "접지 ✓" : "공중 ✗")}", body);
+        // GUI.Label(new Rect(18, 94, 200, 20), $"쿨다운:   {Mathf.Max(0f, cooldown):F2}s",        body);
  
-        GUI.Box(new Rect(10, 138, 220, 70), GUIContent.none);
-        GUI.Label(new Rect(18, 142, 200, 20), "조작법",         title);
-        GUI.Label(new Rect(18, 162, 200, 20), "WASD   이동",    body);
-        GUI.Label(new Rect(18, 182, 200, 20), "Space  점프",    body);
+        // GUI.Box(new Rect(10, 138, 220, 70), GUIContent.none);
+        // GUI.Label(new Rect(18, 142, 200, 20), "조작법",         title);
+        // GUI.Label(new Rect(18, 162, 200, 20), "WASD   이동",    body);
+        // GUI.Label(new Rect(18, 182, 200, 20), "Space  점프",    body);
  
         float cx = Screen.width * .5f, cy = Screen.height * .5f;
         GUI.color = flashTimer > 0f ? new Color(0.4f, 0.8f, 1f) : Color.white;

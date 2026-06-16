@@ -18,7 +18,6 @@ public class PhaseManager : MonoBehaviour
     void Start()
     {
         text.text = "Phase "+currentPhase;
-        Debug.Log("PhaseManager.Start: currentPhase=" + currentPhase + ", waitingForUpgrade=" + waitingForUpgrade);
     }
 
     public int[] phaseScores =
@@ -47,8 +46,6 @@ public class PhaseManager : MonoBehaviour
 
         if (score >= phaseScores[currentPhase - 1])
         {
-            Debug.Log("실행");
-            Debug.Log("CheckPhaseProgress: threshold reached, calling OpenUpgradeWall()");
             OpenUpgradeWall();
         }
     }
@@ -74,7 +71,7 @@ public class PhaseManager : MonoBehaviour
         {
             abilityManager.GenerateAbilities();
         }
-
+        enemySpawner.canSpawn = false;
         Debug.Log("능력 선택");
     }
 
@@ -84,6 +81,8 @@ public class PhaseManager : MonoBehaviour
         //     return;
 
         waitingForUpgrade = false;
+
+        enemySpawner.canSpawn = true;
 
         currentPhase++;
 
