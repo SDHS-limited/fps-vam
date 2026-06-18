@@ -95,7 +95,7 @@ public class GravityPlayerController : MonoBehaviour
  
     void Update()
     {
-        CameraLook();
+        //CameraLook();
  
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             jumpQueued = true;

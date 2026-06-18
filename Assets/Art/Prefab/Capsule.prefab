@@ -159,6 +159,10 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 5
   attackRange: 2
+  stunDuration: 0.1
+  hitColor: {r: 1, g: 0.3820755, b: 0.3820755, a: 1}
+  knockbackForce: 0.5
+  animator: {fileID: 0}
   scoreValue: 10
   scoreManager: {fileID: 0}
 --- !u!114 &2963609021934845608

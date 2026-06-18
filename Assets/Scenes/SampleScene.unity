@@ -2588,7 +2588,7 @@ MonoBehaviour:
   gravStrength: 10
   gravRotateSpeed: 8
   cameraTransform: {fileID: 1853598516}
-  mouseSensitivity: 3.33
+  mouseSensitivity: 5.55
   pitchLimit: 80
   groundTag: Ground
   groundLayer:
@@ -5763,7 +5763,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 87
+  field of view: 90
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -5795,7 +5795,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::camera
   playerBody: {fileID: 860844642}
   arm: {fileID: 1203529240}
-  mouseSensitivity: 200
+  mouseSensitivity: 2000
   clampAngle: 80
 --- !u!114 &1853598521
 MonoBehaviour:
@@ -6276,7 +6276,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 469325102612236275, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
   bulletSpeed: 120
   bulletDamage: 50
-  fireRate: 0.2
+  fireRate: 0.17
   muzzleFlashLeft: {fileID: 0}
   muzzleFlashRight: {fileID: 0}
   shootSound: {fileID: 0}
