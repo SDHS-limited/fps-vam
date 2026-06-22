@@ -105,7 +105,7 @@ public class Bullet : MonoBehaviour
 
     if(face != null)
     {
-        GameManager.Instance.FaceHit(face);
+        //GameManager.Instance.FaceHit(face);
     }
 
     if (hitEffectPrefab)
@@ -136,7 +136,7 @@ public class Bullet : MonoBehaviour
 
         if (face != null)
         {
-            GameManager.Instance.FaceHit(face);
+            //GameManager.Instance.FaceHit(face);
         }
 
         gameObject.SetActive(false);

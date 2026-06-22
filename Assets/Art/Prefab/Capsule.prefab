@@ -177,6 +177,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faa2eaad982e49a40870171c2a551b94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyGravity
-  gravityStrength: 25
+  gravityStrength: 4.9
   groundTag: Ground
   detectRange: 1.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  gravityTurnSpeed: 8
+  alignSpeed: 10
+  lostSurfaceTimeout: 0.5
