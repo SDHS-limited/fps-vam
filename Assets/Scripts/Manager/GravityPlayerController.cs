@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Rendering;       // 추가
+using UnityEngine.Rendering.Universal; // 추가 (URP용)
  
 /// <summary>
 /// 큐브 면 자동 감지 중력 시스템
@@ -50,6 +52,13 @@ public class GravityPlayerController : MonoBehaviour
     // 전환 쿨다운
     [Range(0.1f, 0.5f)]
     public float switchCooldown = 0.25f;
+
+    [Header("데미지 및 연출")]
+    public float maxHp = 100f;
+    public float currentHp;
+    public Volume globalVolume; // 여기에 Global Volume 오브젝트 드래그
+    private Vignette vignette;
+    private float vignetteTimer = 0f;
  
     // ── 내부 ──────────────────────────────────────────────────────
  
@@ -91,6 +100,15 @@ public class GravityPlayerController : MonoBehaviour
  
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
+
+        currentHp = maxHp; // 체력 초기화
+
+        // URP 볼륨에서 Vignette 찾기
+        if (globalVolume != null && globalVolume.profile.TryGet(out Vignette v))
+        {
+            vignette = v;
+            vignette.intensity.value = 0f; // 초기값 0
+        }
     }
  
     void Update()
@@ -100,11 +118,34 @@ public class GravityPlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             jumpQueued = true;
 
-        if (Input.GetMouseButtonDown(1) && canDash)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
         {
             Dash();
         }
- 
+
+        // 피격 효과(비네트) 서서히 원상복구
+        if (vignetteTimer > 0f)
+        {
+            vignetteTimer -= Time.deltaTime;
+            if (vignette != null)
+                vignette.intensity.value = Mathf.Lerp(0f, 0.35f, vignetteTimer / 0.25f);
+        }
+
+        if (vignetteTimer > 0f)
+        {
+            vignetteTimer -= Time.deltaTime;
+            if (vignette != null)
+            {
+                // 서서히 강도 낮추기
+                vignette.intensity.value = Mathf.Lerp(0f, 0.4f, vignetteTimer / 0.5f);
+            }
+        }
+        else
+        {
+            // 힐 효과가 끝나면 원래 색상(검은색)으로 복구
+            if (vignette != null) vignette.color.value = Color.black;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         { Cursor.lockState = CursorLockMode.None;   Cursor.visible = true; }
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
@@ -327,6 +368,55 @@ public class GravityPlayerController : MonoBehaviour
             if (v > best) { best = v; label = n; }
         }
         return label;
+    }
+
+    // ── 체력 ──────────────────────────────────────────────────────
+    // 적과 충돌 시 데미지 처리
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage(10f); // 10만큼 데미지
+        }
+    }
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            vignetteTimer = 0.4f; // 충돌 중이면 계속 피격 비네트 활성화
+            vignette.color.value = Color.red; // 적색으로 변경
+            vignette.intensity.value = 0.4f;    // 강도 0.4 적용
+            //사운드 추가 
+        }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        currentHp -= amount;
+        
+        // 피격 비네트 활성화
+        vignetteTimer = 0.4f; 
+        
+        if (currentHp <= 0)
+        {
+            Debug.Log("플레이어 사망!");
+            // TODO: 게임 오버 로직
+        }
+    }
+
+    public void Heal(float amount)
+    {
+        // 최대 체력을 넘지 않도록 제한하여 회복
+        currentHp = Mathf.Min(currentHp + amount, maxHp);
+
+        // 힐 효과 시작
+        vignetteTimer = 0.5f; // 지속 시간
+
+        if (vignette != null)
+        {
+            vignette.color.value = Color.green; // 초록색으로 변경
+            vignette.intensity.value = 0.4f;    // 강도 0.4 적용
+        }
     }
  
     // ── HUD ───────────────────────────────────────────────────────

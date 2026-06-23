@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 2963609021934845608}
   m_Layer: 0
   m_Name: Capsule
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -186,3 +186,4 @@ MonoBehaviour:
   gravityTurnSpeed: 8
   alignSpeed: 10
   lostSurfaceTimeout: 0.5
+  spawnDropDelay: 0.5

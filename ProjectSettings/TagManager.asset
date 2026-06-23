@@ -10,6 +10,8 @@ TagManager:
   - Ground
   - Ground2
   - CubeCenter
+  - FxTemporaire
+  - Enemy
   layers:
   - Default
   - TransparentFX
