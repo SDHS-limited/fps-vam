@@ -1,5 +1,7 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TimerUI : MonoBehaviour
 {
@@ -8,9 +10,18 @@ public class TimerUI : MonoBehaviour
     [Header("시간 추가 애니메이션 설정")]
     public Animator bonusTimeAnimator;    // 애니메이션이 들어있는 UI의 Animator
     public TextMeshProUGUI bonusTimeText; // "+20" 같은 글자를 띄워줄 TextMeshPro
-    
+
+    [Header("타임 오버 및 결과 씬 설정")]
+    public string resultSceneName = "ResultScene"; // 이동할 씬의 이름
+    public float sceneTransitionDelay = 2.5f;      // 씬 전환 전 대기 시간 (Time's Up 애니메이션 길이)\
+    public GameObject s;
+    public GameObject a;
+
     // 기본 시간을 120초(2분)로 설정
-    public float timer = 120f; 
+    public float timer = 120f;
+
+    // 타임 오버가 중복 실행되지 않도록 막는 플래그 (매우 중요)
+    private bool isGameOver = false;
 
     void Update()
     {
@@ -24,6 +35,8 @@ public class TimerUI : MonoBehaviour
             {
                 timer = 0;
                 // 여기에 시간 초과 시 실행할 코드(게임 오버 등)를 추가할 수 있습니다.
+                TriggerTimesUp();
+
             }
 
             int min = (int)(timer / 60);
@@ -38,6 +51,7 @@ public class TimerUI : MonoBehaviour
     {
         // 1. 함수가 정상적으로 실행되는지 콘솔창에 텍스트 띄우기
         Debug.Log("AddTime 함수가 호출되었습니다! 추가된 시간: " + bonusTime);
+        timer += bonusTime;
 
         if (bonusTimeText != null)
         {
@@ -60,5 +74,30 @@ public class TimerUI : MonoBehaviour
         {
             Debug.LogWarning("보너스 타임 애니메이터가 인스펙터에 연결되지 않았습니다!");
         }
+    }
+
+    void TriggerTimesUp()
+    {
+        isGameOver = true; // 플래그를 켜서 Update문에서의 중복 실행을 막음
+        Debug.Log("타임 오버! 애니메이션 재생 후 결과 씬으로 이동합니다.");
+        bonusTimeText.text = "Times Up";
+
+        if (bonusTimeAnimator != null)
+        {
+            // 작성해주신 "open2" 트리거로 Time's Up 애니메이션 실행
+            bonusTimeAnimator.SetTrigger("open");
+        }
+
+        // 애니메이션이 끝날 때까지 기다렸다가 씬을 이동시키는 코루틴 실행
+        StartCoroutine(GoToResultScene());
+    }
+
+    IEnumerator GoToResultScene()
+    {
+        // 인스펙터에서 설정한 시간(sceneTransitionDelay)만큼 대기
+        yield return new WaitForSeconds(sceneTransitionDelay);
+
+        // 지정된 이름의 씬으로 넘어감
+        SceneManager.LoadScene(resultSceneName);
     }
 }

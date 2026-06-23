@@ -9,6 +9,7 @@ TagManager:
   - Obstacle
   - Ground
   - Ground2
+  - CubeCenter
   layers:
   - Default
   - TransparentFX

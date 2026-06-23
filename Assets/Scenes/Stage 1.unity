@@ -868,7 +868,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: +20 Second
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1827,8 +1827,8 @@ MonoBehaviour:
   timeItemPrefab: {fileID: 7333927331231113459, guid: aa363392a2619f844a9ddce8250e0f81, type: 3}
   spawnPoints:
   - {fileID: 80247487}
-  spawnInterval: 10
-  maxItemsOnMap: 30
+  spawnInterval: 60
+  maxItemsOnMap: 4
 --- !u!1 &823454076
 GameObject:
   m_ObjectHideFlags: 0
@@ -2066,6 +2066,10 @@ MonoBehaviour:
   timerText: {fileID: 316445201}
   bonusTimeAnimator: {fileID: 1225553129}
   bonusTimeText: {fileID: 319490425}
+  resultSceneName: ResultScene
+  sceneTransitionDelay: 2.5
+  s: {fileID: 0}
+  a: {fileID: 1225553125}
   timer: 120
 --- !u!114 &823764541
 MonoBehaviour:
