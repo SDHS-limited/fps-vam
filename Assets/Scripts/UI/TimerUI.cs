@@ -34,7 +34,6 @@ public class TimerUI : MonoBehaviour
             if (timer < 0) 
             {
                 timer = 0;
-                // 여기에 시간 초과 시 실행할 코드(게임 오버 등)를 추가할 수 있습니다.
                 TriggerTimesUp();
 
             }
@@ -78,9 +77,14 @@ public class TimerUI : MonoBehaviour
 
     void TriggerTimesUp()
     {
+        if (isGameOver) return; // 이미 실행 중이면 중복 방지
         isGameOver = true; // 플래그를 켜서 Update문에서의 중복 실행을 막음
         Debug.Log("타임 오버! 애니메이션 재생 후 결과 씬으로 이동합니다.");
         bonusTimeText.text = "Times Up";
+
+        // 1. 시간 느려지게 만들기 (0.2배속)
+        Time.timeScale = 0.3f;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale; // 물리 연산도 배속에 맞춰 조절
 
         if (bonusTimeAnimator != null)
         {
@@ -96,6 +100,10 @@ public class TimerUI : MonoBehaviour
     {
         // 인스펙터에서 설정한 시간(sceneTransitionDelay)만큼 대기
         yield return new WaitForSeconds(sceneTransitionDelay);
+
+        // 씬 전환 전 시간 복구 (매우 중요!)
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
 
         // 지정된 이름의 씬으로 넘어감
         SceneManager.LoadScene(resultSceneName);

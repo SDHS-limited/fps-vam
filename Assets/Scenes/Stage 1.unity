@@ -6682,8 +6682,8 @@ MonoBehaviour:
   timeItemPrefab: {fileID: 8368160203252798476, guid: 54bd9922248e95346852b50d65beb2ca, type: 3}
   spawnPoints:
   - {fileID: 1823013139}
-  spawnInterval: 10
-  maxItemsOnMap: 10
+  spawnInterval: 40
+  maxItemsOnMap: 4
 --- !u!1 &823454076
 GameObject:
   m_ObjectHideFlags: 0
