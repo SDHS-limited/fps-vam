@@ -1,4 +1,4 @@
-// Bullet.cs
+// 수정된 Bullet.cs
 using System;
 using UnityEngine;
 
@@ -9,7 +9,6 @@ public class Bullet : MonoBehaviour
     public float damage   = 75f;
     public float lifeTime = 3f;
     public float gravity  = 2f;
-    
 
     [Header("충돌 이펙트")]
     public GameObject hitEffectPrefab;
@@ -18,6 +17,11 @@ public class Bullet : MonoBehaviour
     [Header("땅 설정")]
     public string groundTag = "Ground";
     public string UIWall = "Ground2";
+
+    [Header("충돌 마스크 (중요!)")]
+    [Tooltip("총알이 맞출 대상만 체크하세요. (예: Default, Enemy, Ground 등. Player는 체크 해제!)")]
+    public LayerMask hitMask = ~0; // 기본값: 모든 레이어와 충돌 (Inspector에서 세팅 필요)
+
     private Vector3 velocity;
     private bool    hasHit = false;
 
@@ -27,7 +31,6 @@ public class Bullet : MonoBehaviour
         damage   = dmg;
         velocity = direction.normalized * speed;
         hasHit   = false;
-        
     }
 
     void OnEnable()
@@ -49,15 +52,14 @@ public class Bullet : MonoBehaviour
         velocity += Vector3.down * gravity * Time.deltaTime;
         Vector3 move = velocity * Time.deltaTime;
 
-        if (Physics.Raycast(transform.position, move.normalized,
-            out RaycastHit hit, move.magnitude + 0.05f))
+        // ★ 수정됨: hitMask를 추가하여 플레이어나 총알끼리의 충돌을 무시합니다.
+        if (Physics.Raycast(transform.position, move.normalized, out RaycastHit hit, move.magnitude + 0.05f, hitMask))
         {
-            if (hit.collider.CompareTag(groundTag))
-                OnGroundHit(hit);   // 땅 → 파티클만
-            else if(hit.collider.CompareTag(UIWall))
-                OnGroundHit(hit);
+            if (hit.collider.CompareTag(groundTag) || hit.collider.CompareTag(UIWall))
+                OnGroundHit(hit);   // 땅, 벽 → 파티클만
             else
-                OnHit(hit);         // 그 외 → 기존 처리
+                OnHit(hit);         // 그 외(적) → 데미지 처리
+
             return;
         }
 
@@ -71,55 +73,46 @@ public class Bullet : MonoBehaviour
     void OnGroundHit(RaycastHit hit)
     {
         hasHit = true;
-
-        // 총알 메시만 숨기기 (파티클은 별도 오브젝트라 영향 없음)
         foreach (var r in GetComponentsInChildren<Renderer>())
             r.enabled = false;
 
-        // 파티클 재생
         if (hitEffectPrefab)
         {
-            var fx = Instantiate(hitEffectPrefab,
-                hit.point, Quaternion.LookRotation(hit.normal));
+            var fx = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
             Destroy(fx, 2f);
         }
 
-        // 파티클 재생 후 풀 반환
         Invoke(nameof(ReturnToPool), 0.1f);
     }
 
     // ── 일반 충돌
-    void OnHit(RaycastHit hit)
-{
-    hasHit = true;
-
-    CubeFace face = hit.collider.GetComponent<CubeFace>();
-
-    Enemy enemy =
-    hit.collider.GetComponent<Enemy>();
-    
-    if(enemy != null)
+void OnHit(RaycastHit hit)
     {
-        enemy.TakeDamage(damage);
+        hasHit = true;
+
+        // ★ 테스트용 로그: 총알이 대체 뭘 때렸는지 유니티 콘솔창(Console)에 출력합니다.
+        Debug.Log("<color=yellow>총알이 때린 오브젝트: " + hit.collider.gameObject.name + "</color>");
+
+        CubeFace face = hit.collider.GetComponentInParent<CubeFace>();
+        
+        // ★ GetComponent를 GetComponentInParent로 변경
+        // (자식 콜라이더에 맞아도 부모에 있는 Enemy 스크립트를 찾아냅니다)
+        Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+
+        if (enemy != null)
+        {
+            enemy.TakeDamage(damage);
+            Debug.Log("<color=red>적중! 적에게 데미지 들어감</color>");
+        }
+
+        if (hitEffectPrefab)
+        {
+            var fx = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+            Destroy(fx, 2f);
+        }
+
+        ReturnToPool();
     }
-
-    if(face != null)
-    {
-        //GameManager.Instance.FaceHit(face);
-    }
-
-    if (hitEffectPrefab)
-    {
-        var fx = Instantiate(
-            hitEffectPrefab,
-            hit.point,
-            Quaternion.LookRotation(hit.normal));
-
-        Destroy(fx, 2f);
-    }
-
-    ReturnToPool();
-}
 
     void ReturnToPool()
     {
@@ -130,15 +123,5 @@ public class Bullet : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        CubeFace face = collision.collider.GetComponent<CubeFace>();
-
-        if (face != null)
-        {
-            //GameManager.Instance.FaceHit(face);
-        }
-
-        gameObject.SetActive(false);
-    }
+    // ★★★ 삭제됨: 총알을 자폭하게 만들던 OnCollisionEnter 함수 통째로 삭제 ★★★
 }
