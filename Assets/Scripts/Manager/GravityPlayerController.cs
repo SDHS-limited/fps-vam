@@ -59,9 +59,9 @@ public class GravityPlayerController : MonoBehaviour
     public Volume globalVolume; // 여기에 Global Volume 오브젝트 드래그
     private Vignette vignette;
     private float vignetteTimer = 0f;
- 
+
     // ── 내부 ──────────────────────────────────────────────────────
- 
+    
     Rigidbody       rb;
     CapsuleCollider col;
  
@@ -113,6 +113,7 @@ public class GravityPlayerController : MonoBehaviour
  
     void Update()
     {
+        if (Time.timeScale == 0f) return;
         //CameraLook();
  
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
@@ -148,8 +149,11 @@ public class GravityPlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         { Cursor.lockState = CursorLockMode.None;   Cursor.visible = true; }
-        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
-        { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
+        if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked) 
+        {
+            Cursor.lockState = CursorLockMode.Locked; 
+            Cursor.visible = false;
+        }
  
         if (cooldown   > 0f) cooldown   -= Time.deltaTime;
         if (flashTimer > 0f) flashTimer -= Time.deltaTime;
