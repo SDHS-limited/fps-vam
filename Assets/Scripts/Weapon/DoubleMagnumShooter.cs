@@ -36,8 +36,14 @@ public class DoubleMagnumShooter : MonoBehaviour
  
     void Start()
     {
-        audioSource = GetComponentInParent<AudioSource>();
-        InitPool();
+        // 부모가 아닌 현재 오브젝트에서 AudioSource를 찾고, 없다면 자동으로 추가합니다.
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        InitPool(); //
     }
  
     void Update()
