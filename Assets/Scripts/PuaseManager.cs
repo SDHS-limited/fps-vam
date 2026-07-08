@@ -11,19 +11,19 @@ public class PuaseManager : MonoBehaviour
     void Start()
     {
         pauseMenuUI.SetActive(false);
-        optionMenuUI.SetActive(false);
+        //optionMenuUI.SetActive(false);
     }
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
-            pauseMenuUI.SetActive(true);
-            Time.timeScale = 0f; // 게임 시간 일시정지
+        //if(Input.GetKeyDown(KeyCode.Escape))
+        //{
+        //    Cursor.lockState = CursorLockMode.Locked;
+        //    Cursor.visible = true;
+        //    pauseMenuUI.SetActive(true);
+        //    Time.timeScale = 0f; // 게임 시간 일시정지
             
-        }
+        //}
     }
     public void Resume()
     {
