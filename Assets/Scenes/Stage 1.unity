@@ -1336,7 +1336,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 534135341}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: startgame
+        m_MethodName: RestartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7836,7 +7836,7 @@ MonoBehaviour:
   initialInterval: 2
   minInterval: 0.3
   difficultyTickInterval: 9.46
-  intervalDecreaseRate: 0.069
+  intervalDecreaseRate: 0.076
   bruteChance: 0.2
   bruteChanceIncrease: 0.02
   maxBruteChance: 0.5
@@ -7857,8 +7857,8 @@ MonoBehaviour:
   timeItemPrefab: {fileID: 5170540758146524564, guid: aecce2cf8bd4a374283d387acf984043, type: 3}
   spawnPoints:
   - {fileID: 80247487}
-  spawnInterval: 60
-  maxItemsOnMap: 4
+  spawnInterval: 59.1
+  maxItemsOnMap: 6
 --- !u!114 &811475071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7866,7 +7866,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 811475062}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 95b942c14e84e2143adf389201f43180, type: 3}
   m_Name: 
@@ -8854,7 +8854,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &943229586
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9314,7 +9314,7 @@ GameObject:
   - component: {fileID: 1055780760}
   - component: {fileID: 1055780759}
   m_Layer: 5
-  m_Name: Score (1)
+  m_Name: HP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9337,7 +9337,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -282.57434, y: -79.80936}
+  m_AnchoredPosition: {x: -282.57434, y: -79.809}
   m_SizeDelta: {x: 565.1487, y: 159.61871}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1055780759
@@ -10745,7 +10745,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 0.459
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -10835,8 +10835,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1903873211}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1034.2316, y: 574.2923, z: 0}
+  m_LocalRotation: {x: -0.14132164, y: 0.85748357, z: -0.32453197, w: -0.37340227}
+  m_LocalPosition: {x: 11.308514, y: 12.470095, z: 5.587059}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11193,7 +11193,7 @@ GameObject:
   - component: {fileID: 2047387140}
   - component: {fileID: 2047387139}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Effect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

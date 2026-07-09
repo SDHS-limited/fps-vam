@@ -7,4 +7,15 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("Stage 1");
     }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log("Restarting game...");
+    }
+    
+    public void QuitGame()
+    {
+        SceneManager.LoadScene("Main Menu");
+    }
 }

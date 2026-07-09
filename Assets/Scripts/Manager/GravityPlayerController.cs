@@ -345,6 +345,9 @@ public class GravityPlayerController : MonoBehaviour
             Debug.Log("플레이어 사망!");
             // TODO: 게임 오버 로직
             image.gameObject.SetActive(true);
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
