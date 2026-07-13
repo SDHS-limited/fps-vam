@@ -189,7 +189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Gravity Shift
+  m_Text: REVFIELD
 --- !u!222 &55625345
 CanvasRenderer:
   m_ObjectHideFlags: 0

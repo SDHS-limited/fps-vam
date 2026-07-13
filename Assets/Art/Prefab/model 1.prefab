@@ -148,3 +148,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeItem
   bonusTime: 20
+  audioSource: {fileID: 8300000, guid: e8defd01d981f34488c837cc9e9774ae, type: 3}

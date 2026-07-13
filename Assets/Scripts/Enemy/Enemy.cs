@@ -7,12 +7,12 @@ public class Enemy : MonoBehaviour
     public float attackRange = 2f;
 
     [Header("Hit Reaction Settings")]
-    public float stunDuration = 0.2f; // ÃÑ¿¡ ¸Â¾ÒÀ» ¶§ °æÁ÷µÇ´Â ½Ã°£ (ÃÊ)
-    public Color hitColor = Color.red; // ÇÇ°Ý ½Ã ±ôºýÀÏ »ö»ó
+    public float stunDuration = 0.2f; // ï¿½Ñ¿ï¿½ ï¿½Â¾ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Ã°ï¿½ (ï¿½ï¿½)
+    public Color hitColor = Color.red; // ï¿½Ç°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     [Header("Hit Motion Settings")]
-    public float knockbackForce = 0.5f; // µÚ·Î ¹Ð·Á³ª´Â Èû (¼öÄ¡°¡ Å¬¼ö·Ï ¸Ö¸® ¹Ð·Á³²)
-    public Animator animator; // ¾Ö´Ï¸ÞÀÌÅÍ ÄÄÆ÷³ÍÆ® (ÀÖ´Â °æ¿ì ¿¬°á)
+    public float knockbackForce = 0.5f; // ï¿½Ú·ï¿½ ï¿½Ð·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½Ä¡ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¸ï¿½ ï¿½Ð·ï¿½ï¿½ï¿½)
+    public Animator animator; // ï¿½Ö´Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
     private float stunTimer = 0f;
     private Renderer enemyRenderer;
@@ -23,6 +23,13 @@ public class Enemy : MonoBehaviour
     private EnemyGravity gravity;
     public int scoreValue = 10;
     public ScoreManager scoreManager;
+    public GravityPlayerController gravityPlayerController;
+
+    private Vector3 knockbackVelocity;
+    private float knockbackTimer;
+
+    public float knockbackTime = 0.2f;
+    public float knockbackDamping = 8f;
 
     void Start()
     {
@@ -30,7 +37,7 @@ public class Enemy : MonoBehaviour
         gravity = GetComponent<EnemyGravity>();
         scoreManager = FindObjectOfType<ScoreManager>();
 
-        // ÀûÀÇ ¸Þ½¬ ·»´õ·¯¸¦ Ã£¾Æ ¿ø·¡ »ö»óÀ» ÀúÀåÇØµÓ´Ï´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ØµÓ´Ï´ï¿½.
         enemyRenderer = GetComponentInChildren<Renderer>();
         if (enemyRenderer != null)
         {
@@ -47,26 +54,40 @@ public class Enemy : MonoBehaviour
         if (player == null)
             return;
 
-        // 1. ¸®¾×¼Ç(°æÁ÷) »óÅÂ Ã¼Å©
+        if (knockbackTimer > 0f)
+        {
+            transform.position += knockbackVelocity * Time.deltaTime;
+
+            knockbackVelocity = Vector3.Lerp(
+                knockbackVelocity,
+                Vector3.zero,
+                knockbackDamping * Time.deltaTime);
+
+            knockbackTimer -= Time.deltaTime;
+
+            return;
+        }
+
+        // 1. ï¿½ï¿½ï¿½×¼ï¿½(ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
         if (stunTimer > 0)
         {
             stunTimer -= Time.deltaTime;
 
-            // ÇÇ°Ý »ö»ó¿¡¼­ ¿ø·¡ »ö»óÀ¸·Î ÀÚ¿¬½º·´°Ô µ¹¾Æ¿À´Â ¿¬Ãâ
+            // ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ó¿¡¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (enemyRenderer != null)
             {
                 enemyRenderer.material.color = Color.Lerp(originalColor, hitColor, stunTimer / stunDuration);
             }
 
-            return; // °æÁ÷ Å¸ÀÌ¸Ó°¡ µµ´Â µ¿¾È¿¡´Â ÀÌµ¿ ¹× °ø°Ý ·ÎÁ÷À» ½ÇÇàÇÏÁö ¾ÊÀ½ (return)
+            return; // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸Ó°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½È¿ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (return)
         }
         else if (enemyRenderer != null && enemyRenderer.material.color != originalColor)
         {
-            // °æÁ÷ÀÌ ³¡³ª¸é ¿ø·¡ »ö»óÀ¸·Î È®½ÇÇÏ°Ô º¹±¸
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
             enemyRenderer.material.color = originalColor;
         }
 
-        // 2. ±âº» AI ·ÎÁ÷ (°æÁ÷ »óÅÂ°¡ ¾Æ´Ò ¶§¸¸ ½ÇÇàµÊ)
+        // 2. ï¿½âº» AI ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½)
         float distance = Vector3.Distance(transform.position, player.position);
 
         if (distance > attackRange)
@@ -91,6 +112,11 @@ public class Enemy : MonoBehaviour
             Quaternion look = Quaternion.LookRotation(dir, -grav);
             transform.rotation = Quaternion.Slerp(transform.rotation, look, Time.deltaTime * 8f);
         }
+    }   
+    public void Knockback(Vector3 direction, float power)
+    {
+        knockbackVelocity = direction.normalized * power;
+        knockbackTimer = knockbackTime;
     }
 
     void Attack()
@@ -112,40 +138,41 @@ public class Enemy : MonoBehaviour
         if (hp <= 0)
         {
             Die();
+            gravityPlayerController.OnEnemyKilled(); // ì ì„ ì²˜ì¹˜í•˜ë©´ í–‰ë³µë„ 10 ì¦ê°€
         }
         else
         {
-            // Ã¼·ÂÀÌ ³²¾ÆÀÖ´Ù¸é ÇÇ°Ý ¸®¾×¼Ç ½ÇÇà
+            // Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´Ù¸ï¿½ ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½×¼ï¿½ ï¿½ï¿½ï¿½ï¿½
             Reaction();
         }
     }
 
-    // ÇÇ°Ý ¸ð¼Ç°ú ¸®¾×¼ÇÀ» µ¿½Ã¿¡ Ã³¸®ÇÏ´Â ÇÔ¼ö
+    // ï¿½Ç°ï¿½ ï¿½ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½×¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¿ï¿½ Ã³ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
     void Reaction()
     {
-        // 1. ±âÁ¸ ¸®¾×¼Ç (°æÁ÷ ¹× »ö»ó º¯°æ)
+        // 1. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×¼ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         stunTimer = stunDuration;
         if (enemyRenderer != null)
         {
             enemyRenderer.material.color = hitColor;
         }
 
-        // 2. ¾Ö´Ï¸ÞÀÌ¼Ç ¸ð¼Ç (Animator°¡ ¿¬°áµÇ¾î ÀÖÀ» ¶§¸¸ ½ÇÇà)
+        // 2. ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ (Animatorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         if (animator != null)
         {
-            // ¾Ö´Ï¸ÞÀÌÅÍ ÄÁÆ®·Ñ·¯¿¡ "Hit"¶ó´Â ÀÌ¸§ÀÇ Trigger ÆÄ¶ó¹ÌÅÍ°¡ ÀÖ¾î¾ß ÇÕ´Ï´Ù.
+            // ï¿½Ö´Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½Ñ·ï¿½ï¿½ï¿½ "Hit"ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ Trigger ï¿½Ä¶ï¿½ï¿½ï¿½Í°ï¿½ ï¿½Ö¾ï¿½ï¿½ ï¿½Õ´Ï´ï¿½.
             animator.SetTrigger("Hit");
         }
 
-        // 3. ³Ë¹é ¸ð¼Ç (¼ø°£ÀûÀ¸·Î µÚ·Î ¹Ð·Á³²)
+        // 3. ï¿½Ë¹ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·ï¿½ ï¿½Ð·ï¿½ï¿½ï¿½)
         if (player != null)
         {
             Vector3 grav = gravity.GravityDir;
 
-            // ÇÃ·¹ÀÌ¾î¿¡¼­ ÀûÀ» ÇâÇÏ´Â ¹æÇâÀ» ±¸ÇÑ µÚ, Áß·Â Æò¸é¿¡ Åõ¿µÇÏ¿© ¹Ù´ÚÀ» ¶ÕÁö ¾Ê°Ô ÇÔ
+            // ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, ï¿½ß·ï¿½ ï¿½ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Ù´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½ï¿½
             Vector3 knockbackDir = Vector3.ProjectOnPlane(transform.position - player.position, grav).normalized;
 
-            // ÀûÀ» °è»êµÈ ¹æÇâÀ¸·Î ¹Ð¾î³¿
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¾î³¿
             transform.position += knockbackDir * knockbackForce;
         }
     }
