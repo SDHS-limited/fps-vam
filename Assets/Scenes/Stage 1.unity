@@ -8591,7 +8591,7 @@ MonoBehaviour:
   feverHealPerSecond: 8
   feverFadeImage: {fileID: 2047387139}
   feverFadeInTime: 0.1
-  feverFadeOutTime: 0.6
+  feverFadeOutTime: 0.06
   feverFadeMaxAlpha: 0.85
   pushRange: 10
   pushForce: 100

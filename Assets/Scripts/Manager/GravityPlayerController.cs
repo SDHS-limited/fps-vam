@@ -318,6 +318,8 @@ public class GravityPlayerController : MonoBehaviour
                 0f,
                 feverFadeOutTime));
         }
+
+        isPouncing = false;
     }
  
     void UpdateFever()
@@ -452,26 +454,24 @@ public class GravityPlayerController : MonoBehaviour
  
     void Dash()
     {
+        if (isPouncing)
+            return;
+    
         canDash = false;
-        if (isPouncing) return;
- 
+    
         Vector3 forward = Vector3.ProjectOnPlane(cameraTransform.forward, gravDir).normalized;
         Vector3 right = Vector3.ProjectOnPlane(cameraTransform.right, gravDir).normalized;
- 
+    
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
- 
+    
         Vector3 dashDir = (forward * v + right * h).normalized;
- 
-        if (dashDir == Vector3.zero) dashDir = forward;
- 
-        Vector3 vel = rb.linearVelocity;
-        Vector3 gravVel = gravDir * Vector3.Dot(vel, gravDir);
- 
+    
+        if (dashDir == Vector3.zero)
+            dashDir = forward;
+    
         rb.AddForce(dashDir * dashForce, ForceMode.VelocityChange);
-        
-
-
+    
         Invoke(nameof(ResetDash), dashCooldown);
     }
  
