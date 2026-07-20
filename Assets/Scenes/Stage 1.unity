@@ -2337,6 +2337,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec7f63aa494ed54e9cb67ac503aa67d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
+  mainMenuPanel: {fileID: 0}
+  SettingMenuPanel: {fileID: 0}
+  audioSettingsPanel: {fileID: 0}
+  videoSettingsPanel: {fileID: 0}
+  controlsSettingsPanel: {fileID: 0}
 --- !u!4 &534135342
 Transform:
   m_ObjectHideFlags: 0
@@ -8205,10 +8210,10 @@ RectTransform:
   - {fileID: 1479985444}
   - {fileID: 900288978}
   - {fileID: 2047387141}
+  - {fileID: 1188653966}
   - {fileID: 1225553126}
   - {fileID: 1910346609}
   - {fileID: 943229586}
-  - {fileID: 1188653966}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -9722,7 +9727,7 @@ GameObject:
   - component: {fileID: 1188653968}
   - component: {fileID: 1188653967}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11412,7 +11417,7 @@ AudioSource:
   m_GameObject: {fileID: 1903873211}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -3229142078273068247, guid: c37baa0b14bbea84984f553219205d54, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: b8cc7d10ff403a6419743f077887a099, type: 3}
   m_PlayOnAwake: 1
