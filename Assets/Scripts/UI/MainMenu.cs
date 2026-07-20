@@ -49,6 +49,7 @@ public class MainMenu : MonoBehaviour
         videoSettingsPanel.SetActive(false);
         controlsSettingsPanel.SetActive(false);
         SettingMenuPanel.SetActive(true);
+        mainMenuPanel.SetActive(true);
     }
     public void CloseOptions()
     {
