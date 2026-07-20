@@ -48,7 +48,7 @@ public class DoubleMagnumShooter : MonoBehaviour
  
     void Update()
     {
-        if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime)
+        if (Input.GetKeyDown(KeyManager.instance.keys["Attack"]) && Time.time >= nextFireTime)
             Shoot();
             
     }

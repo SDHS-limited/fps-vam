@@ -15,7 +15,7 @@ public class GrenadeThrower : MonoBehaviour
     void Update()
     {
         // G키를 누르면 수류탄 투척
-        if (Input.GetKeyDown(KeyCode.G) && maxGrenades > 0)
+        if (Input.GetKeyDown(KeyManager.instance.keys["Grenade"]) && maxGrenades > 0)
         {
             ThrowGrenade();
             maxGrenades--;

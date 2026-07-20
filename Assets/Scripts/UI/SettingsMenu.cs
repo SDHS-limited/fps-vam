@@ -7,7 +7,7 @@ using UnityEngine.Audio; // ★ 오디오 믹서를 사용하기 위해 추가
 public class SettingsMenu : MonoBehaviour
 {
     [Header("UI 컴포넌트 연결")]
-    public TMP_Dropdown resolutionDropdown;
+    public Dropdown resolutionDropdown;
     public Slider sensitivitySlider;
     public TextMeshProUGUI sensitivityText;
 
