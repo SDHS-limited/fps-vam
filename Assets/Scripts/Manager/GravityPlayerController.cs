@@ -63,6 +63,7 @@ public class GravityPlayerController : MonoBehaviour
     [Header("UI 연결")]
     public TextMeshProUGUI hpText;
     public Image image;
+    public TimerUI timerUI;
  
     // ─────────────────────────────────────────────────────────────
     // 피버타임(행복지수) 시스템
@@ -237,7 +238,7 @@ public class GravityPlayerController : MonoBehaviour
  
         if (Input.GetMouseButtonDown(0) && Cursor.lockState != CursorLockMode.Locked)
         {
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = false;
         }
  
@@ -294,8 +295,10 @@ public class GravityPlayerController : MonoBehaviour
         feverTimer = feverDuration;
         moveSpeed = baseMoveSpeedCache * feverMoveSpeedMultiplier;
  
-        if (feverFadeRoutine != null) StopCoroutine(feverFadeRoutine);
-        feverFadeRoutine = StartCoroutine(FeverFadeRoutine());
+        //if (feverFadeRoutine != null) StopCoroutine(feverFadeRoutine);
+       // feverFadeRoutine = StartCoroutine(FeverFadeRoutine());
+       timerUI.bonusTimeAnimator.SetTrigger("open");
+       timerUI.bonusTimeText.text = "Fever Time!";
     }
  
     void EndFever()
