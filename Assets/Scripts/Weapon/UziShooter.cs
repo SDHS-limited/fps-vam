@@ -66,17 +66,17 @@ public class UziShooter : MonoBehaviour
         // Uzi는 자동 연사
         if (Input.GetKey(KeyManager.instance.keys["Attack"]))
         {
-            if (Time.time >= nextFireTime && magazineSize > 0)
+            if (Time.time >= nextFireTime)
             {
                 Shoot();
             }
         }
 
-        if(magazineSize <= 0)
-        {
-            Reload();
-            magazineSize = 30;
-        }
+        // if(magazineSize <= 0)
+        // {
+        //     Reload();
+        //     magazineSize = 30;
+        // }
     }
 
     void Shoot()
