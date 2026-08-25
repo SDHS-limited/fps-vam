@@ -64,6 +64,7 @@ public class GravityPlayerController : MonoBehaviour
     public TextMeshProUGUI hpText;
     public Image image;
     public TimerUI timerUI;
+    private bool isDie = false;
  
     // ─────────────────────────────────────────────────────────────
     // 피버타임(행복지수) 시스템
@@ -219,10 +220,19 @@ public class GravityPlayerController : MonoBehaviour
         {
             TryPushAttack();
         }
-        
+        //치트키
         if (Input.GetKeyDown(KeyCode.F1))
         {
             happiness = maxHappiness;
+        }
+
+        if(currentHp <= 0)
+        {
+            isDie = true;
+        }
+        else
+        {
+            isDie = false;
         }
  
         if (vignetteTimer > 0f)
@@ -627,6 +637,8 @@ public class GravityPlayerController : MonoBehaviour
  
     void OnGUI()
     {
+        if (isDie) return;
+
         if (flashTimer > 0f)
         {
             GUI.color = new Color(0.5f, 0.8f, 1f, (flashTimer / 0.25f) * 0.18f);

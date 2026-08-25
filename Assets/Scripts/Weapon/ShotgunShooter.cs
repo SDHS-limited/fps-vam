@@ -3,40 +3,53 @@ using UnityEngine;
 public class ShotgunShooter : MonoBehaviour
 {
     [Header("── 히어라키 연결 ──")]
-    // 샷건은 보통 양손으로 하나의 총을 잡으므로 총구(Barrel)를 하나만 사용합니다.
-    public Transform barrel; 
+    public Transform barrel;
 
-    [Header("── 팔 반동 (양팔 동시 적용) ──")]
+    [Header("── 팔 반동 ──")]
     public ArmRecoil recoilLeft;
     public ArmRecoil recoilRight;
     public CameraShake cameraShake;
 
     [Header("── 총알 및 산탄 설정 ──")]
     public GameObject bulletPrefab;
+
+    [Tooltip("총알 속도")]
     public float bulletSpeed = 120f;
-    public float bulletDamage = 15f; // 펠릿 하나당 데미지 (15 * 8 = 총 120 데미지)
-    public int pelletCount = 8;      // 한 번에 발사될 펠릿(산탄) 수
-    public float spreadAngle = 7f;   // 탄퍼짐 각도 (클수록 넓게 퍼짐)
+
+    [Tooltip("펠릿 하나당 데미지")]
+    public float bulletDamage = 15f;
+
+    [Tooltip("한 발당 펠릿 수")]
+    public int pelletCount = 8;
+
+    [Tooltip("최대 탄퍼짐 각도")]
+    [Range(0f, 30f)]
+    public float spreadAngle = 7f;
+
+    [Tooltip("탄퍼짐 중심 집중도. 높을수록 중앙에 많이 모임")]
+    [Range(0.1f, 5f)]
+    public float spreadBias = 2f;
 
     [Header("── 발사 설정 ──")]
-    public float fireRate = 0.25f;    // 샷건은 매그넘보다 연사속도가 느림
+    public float fireRate = 0.25f;
 
     [Header("── 이펙트 ──")]
     public ParticleSystem muzzleFlash;
     public AudioClip shootSound;
 
     [Header("── 오브젝트 풀 ──")]
-    // 샷건은 한 번에 8개씩 발사하므로 풀 사이즈를 넉넉하게 잡아야 합니다.
-    public int poolSize = 100; 
+    public int poolSize = 100;
+
+    [Header("── 선입력 ──")]
+    public float inputBufferWindow = 0.15f;
 
     private float nextFireTime = 0f;
+    private float inputBufferTimer = 0f;
+
     private GameObject[] pool;
     private int poolIndex = 0;
-    private AudioSource audioSource;
 
-    [Header("── 선입력(Input Buffer) 설정 ──")]
-    public float inputBufferWindow = 0.15f; // 0.15초 안에 누른 클릭은 예약해줌
-    private float inputBufferTimer = 0f;    // 현재 남은 선입력 시간
+    private AudioSource audioSource;
 
     void Start()
     {
@@ -46,53 +59,58 @@ public class ShotgunShooter : MonoBehaviour
 
     void Update()
     {
-// 1. 마우스를 클릭하면 선입력 타이머를 최대로 채움 (예약 접수)
+        // 발사 입력
         if (Input.GetButtonDown("Fire1"))
         {
             inputBufferTimer = inputBufferWindow;
         }
 
-        // 2. 선입력 타이머가 남아있고, 발사 쿨타임이 다 찼다면 발사!
+        // 발사 가능
         if (inputBufferTimer > 0f && Time.time >= nextFireTime)
         {
             Shoot();
-            inputBufferTimer = 0f; // 발사했으므로 예약 초기화
-            //Debug.Log("샷건 발사! 다음 발사 가능 시간: " + nextFireTime);
+
+            inputBufferTimer = 0f;
         }
 
-        // 3. 매 프레임마다 선입력 타이머 감소 (예약 시간 만료 처리)
+        // 선입력 감소
         if (inputBufferTimer > 0f)
         {
             inputBufferTimer -= Time.deltaTime;
-        }
-
-        // (선택) 쿨타임 중 클릭 피드백 
-        // 선입력이 아예 닿지 않는 너무 이른 시점에 클릭했을 때만 로그 출력
-        if (Input.GetButtonDown("Fire1") && Time.time < nextFireTime - inputBufferWindow)
-        {
-            //Debug.Log("샷건은 연사속도가 느립니다. 잠시 기다려주세요.");
         }
     }
 
     void Shoot()
     {
+        if (barrel == null)
+            return;
+
         nextFireTime = Time.time + fireRate;
 
-        // pelletCount 만큼 총알을 동시에 생성하여 흩뿌립니다.
+        // ─────────────────────────────
+        // 산탄 발사
+        // ─────────────────────────────
+
         for (int i = 0; i < pelletCount; i++)
         {
             SpawnBullet(barrel);
         }
 
-//        muzzleFlash?.Play();
-        audioSource?.PlayOneShot(shootSound);
+        // 총구 이펙트
+        //muzzleFlash?.Play();
 
-        // ★ 샷건은 묵직하므로 양팔에 동시에 반동을 줍니다.
+        // 사운드
+        if (shootSound != null)
+        {
+            audioSource?.PlayOneShot(shootSound);
+        }
+
+        // 반동
         recoilLeft?.TriggerRecoil();
         recoilRight?.TriggerRecoil();
-        
-        // 매그넘보다 더 크고 강하게 카메라 흔들림 적용
-        cameraShake?.Shake(0.3f, 0.2f); 
+
+        // 카메라 흔들림
+        cameraShake?.Shake(0.3f, 0.2f);
     }
 
     void SpawnBullet(Transform spawnPoint)
@@ -102,34 +120,99 @@ public class ShotgunShooter : MonoBehaviour
 
         GameObject bulletObj = GetBulletFromPool();
 
-        float randomX = Random.Range(-spreadAngle, spreadAngle);
-        float randomY = Random.Range(-spreadAngle, spreadAngle);
+        // ─────────────────────────────
+        // 정확한 원뿔형 산탄 생성
+        // ─────────────────────────────
 
-        Quaternion spreadRotation =
-            Quaternion.Euler(randomX, randomY, 0);
-
-        Vector3 fireDirection =
-            spreadRotation * spawnPoint.forward;
-
-        bulletObj.transform.SetPositionAndRotation(
-            spawnPoint.position,
-            Quaternion.LookRotation(fireDirection)
+        Vector3 fireDirection = GetSpreadDirection(
+            spawnPoint.forward,
+            spreadAngle
         );
 
+        // 총구 위치
+        bulletObj.transform.position = spawnPoint.position;
+
+        // 탄환 방향
+        bulletObj.transform.rotation =
+            Quaternion.LookRotation(fireDirection);
+
+        // Bullet 초기화
         Bullet bullet = bulletObj.GetComponent<Bullet>();
 
-        bullet.Init(fireDirection, bulletSpeed, bulletDamage);
+        if (bullet != null)
+        {
+            bullet.Init(
+                fireDirection,
+                bulletSpeed,
+                bulletDamage
+            );
+        }
 
+        // 마지막에 활성화
         bulletObj.SetActive(true);
     }
 
+    Vector3 GetSpreadDirection(Vector3 forward, float angle)
+    {
+        // 총구 방향을 기준으로 한 원형 랜덤 좌표
+        Vector2 randomCircle = Random.insideUnitCircle;
+
+        // 중심에 얼마나 집중시킬지 결정
+        float distance =
+            Mathf.Pow(Random.value, spreadBias);
+
+        randomCircle *= distance;
+
+        // 각도 → 반지름
+        float spreadRadius =
+            Mathf.Tan(angle * Mathf.Deg2Rad);
+
+        randomCircle *= spreadRadius;
+
+        // 총구 기준 좌표계 생성
+        Vector3 right = Vector3.Cross(
+            Vector3.up,
+            forward
+        ).normalized;
+
+        // 총구가 위쪽을 향하는 경우를 위한 보정
+        if (right.sqrMagnitude < 0.001f)
+        {
+            right = Vector3.Cross(
+                Vector3.forward,
+                forward
+            ).normalized;
+        }
+
+        Vector3 up = Vector3.Cross(
+            forward,
+            right
+        ).normalized;
+
+        // 최종 방향
+        Vector3 direction =
+            forward +
+            right * randomCircle.x +
+            up * randomCircle.y;
+
+        return direction.normalized;
+    }
+
+    // ─────────────────────────────
+    // 오브젝트 풀
+    // ─────────────────────────────
+
     void InitPool()
     {
-        if (poolSize <= 0 || bulletPrefab == null) return;
+        if (poolSize <= 0 || bulletPrefab == null)
+            return;
+
         pool = new GameObject[poolSize];
+
         for (int i = 0; i < poolSize; i++)
         {
             pool[i] = Instantiate(bulletPrefab);
+
             pool[i].SetActive(false);
         }
     }
@@ -137,20 +220,25 @@ public class ShotgunShooter : MonoBehaviour
     GameObject GetBulletFromPool()
     {
         if (pool == null)
+        {
             return Instantiate(bulletPrefab);
-    
+        }
+
         for (int i = 0; i < poolSize; i++)
         {
-            int idx = (poolIndex + i) % poolSize;
-    
-            if (!pool[idx].activeInHierarchy)
+            int index =
+                (poolIndex + i) % poolSize;
+
+            if (!pool[index].activeInHierarchy)
             {
-                poolIndex = (idx + 1) % poolSize;
-                return pool[idx];
+                poolIndex =
+                    (index + 1) % poolSize;
+
+                return pool[index];
             }
         }
-    
-        // 풀이 부족하면 새로 생성
+
+        // 풀이 부족하면 추가 생성
         return Instantiate(bulletPrefab);
     }
 }

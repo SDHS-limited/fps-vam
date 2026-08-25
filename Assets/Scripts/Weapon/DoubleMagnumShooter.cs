@@ -32,7 +32,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     private int          currentBarrel = 0;   // 0=왼쪽, 1=오른쪽
     private GameObject[] pool;
     private int          poolIndex = 0;
-    private AudioSource  audioSource;
+    public AudioSource  audioSource;
  
     void Start()
     {

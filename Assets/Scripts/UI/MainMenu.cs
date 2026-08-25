@@ -59,4 +59,9 @@ public class MainMenu : MonoBehaviour
         SettingMenuPanel.SetActive(false);
         mainMenuPanel.SetActive(false);
     }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
 }
