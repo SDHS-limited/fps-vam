@@ -311,7 +311,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &80247488
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -368,6 +368,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!1 &100628641
 GameObject:
   m_ObjectHideFlags: 0
@@ -10344,7 +10345,7 @@ MonoBehaviour:
   recoilX: -80
   recoilSpeed: 50
   recoverSpeed: 20
-  gun: {fileID: 0}
+  gun: {fileID: 452118959}
 --- !u!95 &1088855485
 Animator:
   serializedVersion: 7
