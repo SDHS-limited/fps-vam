@@ -60,6 +60,9 @@ public class GravityPlayerController : MonoBehaviour
     public Image image;
     public TimerUI timerUI;
     private bool isDie;
+    
+    [Header("피버타임 텍스트")]
+    [SerializeField] private FeverWaveText feverWaveText;
 
     [Header("능력 강화 시스템")]
     [Tooltip("1 = 기본, 1.2 = 이동속도 20% 증가")]
@@ -139,6 +142,11 @@ public class GravityPlayerController : MonoBehaviour
 
         if (image != null) image.gameObject.SetActive(false);
         if (audioSource != null) audioSource.Play();
+
+        if (feverWaveText != null)
+        {
+            feverWaveText.gameObject.SetActive(false);
+        }
 
         rb.useGravity = false;
         rb.freezeRotation = true;
@@ -326,6 +334,14 @@ public class GravityPlayerController : MonoBehaviour
 
         // 이동 강화는 Move()에서 별도로 곱해지므로 피버와 함께 유지됨
         moveSpeed = baseMoveSpeedCache * feverMoveSpeedMultiplier;
+
+        // 피버 텍스트 표시 + 파도 애니메이션 실행
+        if (feverWaveText != null)
+        {
+            feverWaveText.gameObject.SetActive(true);
+            feverWaveText.Play();
+        }
+
         UpdateBulletDamage();
 
         if (timerUI != null)
@@ -349,6 +365,12 @@ public class GravityPlayerController : MonoBehaviour
         if (feverFadeRoutine != null)
             StopCoroutine(feverFadeRoutine);
 
+        if (feverWaveText != null)
+        {
+            feverWaveText.Stop();
+            feverWaveText.gameObject.SetActive(false);
+        }
+
         if (feverFadeImage != null)
         {
             feverFadeRoutine = StartCoroutine(
@@ -370,6 +392,8 @@ public class GravityPlayerController : MonoBehaviour
 
         if (currentHp < maxHp)
             Heal(feverHealPerSecond * Time.deltaTime);
+
+
 
         if (Input.GetKeyDown(KeyManager.instance.keys["Push"]) &&
             pushCooldownTimer <= 0f && !isPouncing)
