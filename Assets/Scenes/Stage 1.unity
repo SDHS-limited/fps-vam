@@ -8890,10 +8890,10 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 4294967295
-  dashForce: 27.9
-  dashCooldown: 1
   faceDetectRange: 1
   switchCooldown: 0.25
+  dashForce: 27.9
+  dashCooldown: 1
   maxHp: 100
   currentHp: 0
   globalVolume: {fileID: 823454086}
@@ -8901,6 +8901,10 @@ MonoBehaviour:
   hpText: {fileID: 1055780759}
   image: {fileID: 943229587}
   timerUI: {fileID: 823764540}
+  abilityMoveSpeedMultiplier: 1
+  abilityDamageMultiplier: 1
+  normalBulletDamage: 75
+  feverBulletDamage: 125
   happiness: 0
   maxHappiness: 100
   happinessPerKill: 5
@@ -10547,7 +10551,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1130835164
 Transform:
   m_ObjectHideFlags: 0
@@ -12412,7 +12416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1903740793
 Transform:
   m_ObjectHideFlags: 0
