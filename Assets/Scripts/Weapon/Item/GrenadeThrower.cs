@@ -22,7 +22,7 @@ public class GrenadeThrower : MonoBehaviour
         }
         else
         {
-            Debug.Log("수류탄이 없습니다.");
+            
         }
         if (text != null)
         {

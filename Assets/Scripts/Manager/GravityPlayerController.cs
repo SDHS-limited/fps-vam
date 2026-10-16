@@ -285,7 +285,8 @@ public class GravityPlayerController : MonoBehaviour
         switch (ability.abilityType)
         {
             case AbilityType.MoveSpeed:
-                abilityMoveSpeedMultiplier += value;
+                moveSpeed += value;
+                bullet.damage -= 5;
                 break;
 
             case AbilityType.AttackDamage:
@@ -302,8 +303,6 @@ public class GravityPlayerController : MonoBehaviour
                 Heal(value);
                 break;
         }
-
-        Debug.Log($"[능력 획득] {ability.abilityName} / 강화 수치: {value}");
     }
 
     private void UpdateBulletDamage()

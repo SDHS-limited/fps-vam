@@ -15,13 +15,10 @@ public enum AbilityType
 )]
 public class AbilityData : ScriptableObject
 {
-    [Header("기본 정보")]
-    public string abilityName;
 
     [TextArea(2, 4)]
-    public string description;
-
-    public Sprite icon;
+    public string Buffdescription;
+    public string Nuffdescription;
 
     [Header("능력 설정")]
     public AbilityType abilityType;

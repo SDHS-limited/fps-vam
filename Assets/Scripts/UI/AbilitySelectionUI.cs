@@ -10,9 +10,8 @@ public class AbilitySelectionUI : MonoBehaviour
     public class AbilitySlot
     {
         public Button button;
-        public TMP_Text nameText;
-        public TMP_Text descriptionText;
-        public Image icon;
+        public TMP_Text BuffdescriptionText;
+        public TMP_Text NuffdescriptionText;
     }
 
     [Header("UI")]
@@ -88,8 +87,8 @@ public class AbilitySelectionUI : MonoBehaviour
         {
             if (slots[i] == null ||
                 slots[i].button == null ||
-                slots[i].nameText == null ||
-                slots[i].descriptionText == null)
+                slots[i].BuffdescriptionText == null ||
+                slots[i].NuffdescriptionText == null)
             {
                 Debug.LogError("능력 카드 UI 연결이 누락되었습니다.");
                 return false;
@@ -118,14 +117,8 @@ public class AbilitySelectionUI : MonoBehaviour
         {
             AbilityData ability = currentAbilities[i];
 
-            slots[i].nameText.text = ability.abilityName;
-            slots[i].descriptionText.text = ability.description;
-
-            if (slots[i].icon != null)
-            {
-                slots[i].icon.sprite = ability.icon;
-                slots[i].icon.enabled = ability.icon != null;
-            }
+            slots[i].BuffdescriptionText.text = ability.Buffdescription;
+            slots[i].NuffdescriptionText.text = ability.Nuffdescription;
 
             slots[i].button.interactable = true;
         }
@@ -178,7 +171,7 @@ public class AbilitySelectionUI : MonoBehaviour
         isSelecting = false;
 
         abilityPanel.SetActive(false);
-
+        
         // 기존 시간 상태 복구
         if (pauseGame)
         {

@@ -9,8 +9,13 @@ public class AbilityBoxItem : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        if (isCollected)
+        if (other.gameObject.CompareTag("Player"))
+        {
+            if (isCollected)
             return;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
         GravityPlayerController player =
             other.collider.GetComponentInParent<GravityPlayerController>();
@@ -41,5 +46,6 @@ public class AbilityBoxItem : MonoBehaviour
         }
 
         Destroy(gameObject);
+        } 
     }
 }
