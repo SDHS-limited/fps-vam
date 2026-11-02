@@ -133,6 +133,7 @@ public class GravityPlayerController : MonoBehaviour
 
     private Rigidbody rb;
     private CapsuleCollider col;
+    private GravityShiftMotor shiftMotor;
     private Vector3 gravDir = Vector3.down;
     private Vector3 targetGravDir = Vector3.down;
     private bool isGrounded;
@@ -154,6 +155,7 @@ public class GravityPlayerController : MonoBehaviour
         hitMarker = HitMarkerUI.Create(this);
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
+        shiftMotor = GetComponent<GravityShiftMotor>();
 
         if (image != null) image.gameObject.SetActive(false);
         if (audioSource != null) audioSource.Play();
@@ -272,12 +274,14 @@ public class GravityPlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         if (isDie) return;
-        gravDir = Vector3.Slerp(
-            gravDir, targetGravDir,
-            Time.fixedDeltaTime * gravRotateSpeed * 3f).normalized;
+        bool manualGravity = shiftMotor != null && shiftMotor.isActiveAndEnabled;
+        if (manualGravity)
+            gravDir = targetGravDir = shiftMotor.GravityDirection;
+        else
+            gravDir = Vector3.Slerp(gravDir, targetGravDir, Time.fixedDeltaTime * gravRotateSpeed * 3f).normalized;
 
         CheckGround();
-        DetectFace();
+        if (!manualGravity) DetectFace();
         rb.AddForce(gravDir * gravStrength, ForceMode.Acceleration);
         Move();
 
@@ -287,7 +291,8 @@ public class GravityPlayerController : MonoBehaviour
             jumpQueued = false;
         }
 
-        AlignBody();
+        if (manualGravity) shiftMotor.AlignBody(Time.fixedDeltaTime);
+        else AlignBody();
     }
 
     // ─────────────────────────────────────────────────────────

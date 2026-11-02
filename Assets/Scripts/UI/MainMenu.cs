@@ -30,7 +30,20 @@ public class MainMenu : MonoBehaviour
 
     public void RestartGame()
     {
+        ReloadCurrentScene();
+    }
+
+    public static void ReloadCurrentScene()
+    {
         RestoreTime();
+#if UNITY_EDITOR
+        if (SceneManager.GetActiveScene().buildIndex < 0)
+        {
+            UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(
+                SceneManager.GetActiveScene().path, new LoadSceneParameters(LoadSceneMode.Single));
+            return;
+        }
+#endif
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Debug.Log("Restarting game...");
     }

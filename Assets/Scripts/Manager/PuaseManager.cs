@@ -34,7 +34,7 @@ public class PuaseManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // 현재 씬 재시작
+        MainMenu.ReloadCurrentScene();
     }
     public void Option()
     {
