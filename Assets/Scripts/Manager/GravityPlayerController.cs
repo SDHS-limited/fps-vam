@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public class GravityPlayerController : MonoBehaviour
 {
     public AudioSource audioSource;
+    public Enemy EnemyPrefab;
 
     [Header("이동")]
     public float moveSpeed = 7f;
@@ -290,17 +291,19 @@ public class GravityPlayerController : MonoBehaviour
                 break;
 
             case AbilityType.AttackDamage:
-                abilityDamageMultiplier += value;
+                bullet.damage += value;
                 UpdateBulletDamage();
                 break;
 
             case AbilityType.MaxHealth:
                 maxHp += value;
                 Heal(value);
+                EnemyPrefab.maxHp += 10;
                 break;
 
             case AbilityType.Heal:
                 Heal(value);
+                moveSpeed -= 0.5f;
                 break;
         }
     }
