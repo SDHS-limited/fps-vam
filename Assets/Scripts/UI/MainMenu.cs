@@ -3,6 +3,18 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    private void OnEnable()
+    {
+        if (SceneManager.GetActiveScene().name != "MainTitle") return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private static void RestoreTime()
+    {
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+    }
 
     [Header("UI 설정")]
     [SerializeField] private GameObject mainMenuPanel; // 메인 메뉴 패널
@@ -12,17 +24,22 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject controlsSettingsPanel; // 컨트롤 설정 패널
     public void startgame()
     {
+        RestoreTime();
         SceneManager.LoadScene("Stage 1");
     }
 
     public void RestartGame()
     {
+        RestoreTime();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Debug.Log("Restarting game...");
     }
     
     public void QuitGame()
     {
+        RestoreTime();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene("MainTitle");
     }
 

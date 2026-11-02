@@ -51,6 +51,10 @@ public class GravityPlayerController : MonoBehaviour
     [Header("데미지 및 연출")]
     public float maxHp = 100f;
     public float currentHp;
+    [Header("접촉 피해")]
+    public float contactDamage = 10f;
+    [Min(0f)] public float contactInvulnerability = 0.65f;
+    private float nextContactDamageTime;
     public Volume globalVolume;
     private Vignette vignette;
     private float vignetteTimer;
@@ -61,6 +65,15 @@ public class GravityPlayerController : MonoBehaviour
     public Image image;
     public TimerUI timerUI;
     private bool isDie;
+    public bool IsDead => isDie;
+    private HitMarkerUI hitMarker;
+
+    public void ShowHitMarker(bool lethal)
+    {
+        if (hitMarker != null) hitMarker.Show(lethal);
+    }
+    private int displayedHappiness = int.MinValue;
+    private int displayedMaxHappiness = int.MinValue;
     
     [Header("피버타임 텍스트")]
     [SerializeField] private FeverWaveText feverWaveText;
@@ -138,6 +151,7 @@ public class GravityPlayerController : MonoBehaviour
 
     private void Awake()
     {
+        hitMarker = HitMarkerUI.Create(this);
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
 
@@ -198,6 +212,7 @@ public class GravityPlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (isDie) return;
         UpdateHappinessUI();
 
         // 능력 선택 UI 등으로 게임이 정지했으면 플레이어 입력도 정지
@@ -210,8 +225,8 @@ public class GravityPlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyManager.instance.keys["Dash"]) && canDash)
             Dash();
 
-        // 일반 상태: 밀치기 / 피버 상태: Pounce (UpdateFever에서 처리)
-        if (!IsFeverActive && Input.GetKeyDown(KeyManager.instance.keys["Push"]))
+        // 피버 여부와 관계없이 같은 키로 밀치기를 사용합니다.
+        if (Input.GetKeyDown(KeyManager.instance.keys["Push"]))
             TryPushAttack();
 
         if (Input.GetKeyDown(KeyCode.F1))
@@ -256,6 +271,7 @@ public class GravityPlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDie) return;
         gravDir = Vector3.Slerp(
             gravDir, targetGravDir,
             Time.fixedDeltaTime * gravRotateSpeed * 3f).normalized;
@@ -397,12 +413,6 @@ public class GravityPlayerController : MonoBehaviour
 
 
 
-        if (Input.GetKeyDown(KeyManager.instance.keys["Push"]) &&
-            pushCooldownTimer <= 0f && !isPouncing)
-        {
-            StartCoroutine(Pounce());
-        }
-
         feverTimer -= Time.deltaTime;
         if (feverTimer <= 0f) EndFever();
     }
@@ -485,6 +495,9 @@ public class GravityPlayerController : MonoBehaviour
 
     private void UpdateHappinessUI()
     {
+        if (displayedHappiness == happiness && displayedMaxHappiness == maxHappiness) return;
+        displayedHappiness = happiness;
+        displayedMaxHappiness = maxHappiness;
         if (happinessText != null)
             happinessText.text = $"{happiness} / {maxHappiness}";
     }
@@ -668,7 +681,9 @@ public class GravityPlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy") && !isPouncing)
         {
-            TakeDamage(10f);
+            if (Time.time < nextContactDamageTime) return;
+            nextContactDamageTime = Time.time + contactInvulnerability;
+            TakeDamage(contactDamage);
             return;
         }
 
@@ -716,20 +731,38 @@ public class GravityPlayerController : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDie) return;
         currentHp = Mathf.Max(0f, currentHp - amount);
         UpdateHpUI();
         vignetteTimer = 0.4f;
 
-        if (currentHp <= 0f && image != null)
+        if (currentHp <= 0f)
         {
-            image.gameObject.SetActive(true);
+            isDie = true;
+            StopAllCoroutines();
+            jumpQueued = false;
+            rb.linearVelocity = Vector3.zero;
+            if (image != null)
+            {
+                image.gameObject.SetActive(true);
+                image.transform.SetAsLastSibling();
+            }
+            Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
     }
 
+    private void LateUpdate()
+    {
+        if (!isDie) return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
     public void Heal(float amount)
     {
+        if (isDie) return;
         currentHp = Mathf.Min(currentHp + amount, maxHp);
         UpdateHpUI();
         vignetteTimer = 0.5f;

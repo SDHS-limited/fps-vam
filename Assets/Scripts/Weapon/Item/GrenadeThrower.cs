@@ -11,6 +11,7 @@ public class GrenadeThrower : MonoBehaviour
     public int maxGrenades = 3;          // 최대 수류탄 개수
     public Image GrenadeUI; // 수류탄 UI 이미지
     public TextMeshProUGUI text; // 수류탄 개수 텍스트
+    private int displayedGrenades = int.MinValue;
 
     void Update()
     {
@@ -24,8 +25,9 @@ public class GrenadeThrower : MonoBehaviour
         {
             
         }
-        if (text != null)
+        if (text != null && displayedGrenades != maxGrenades)
         {
+            displayedGrenades = maxGrenades;
             text.text = "X " + maxGrenades;
         }
 

@@ -17,6 +17,10 @@ public class Enemy : MonoBehaviour
     private float stunTimer = 0f;
     private Renderer enemyRenderer;
     private Color originalColor;
+    private MaterialPropertyBlock hitProperties;
+    private int colorProperty;
+    private bool showingHitColor;
+    private bool dying;
 
     private float hp;
     private Transform player;
@@ -41,12 +45,18 @@ public class Enemy : MonoBehaviour
         enemyRenderer = GetComponentInChildren<Renderer>();
         if (enemyRenderer != null)
         {
-            originalColor = enemyRenderer.material.color;
+            var material = enemyRenderer.sharedMaterial;
+            colorProperty = Shader.PropertyToID(material.HasProperty("_BaseColor") ? "_BaseColor" : "_Color");
+            originalColor = material.GetColor(colorProperty);
+            hitProperties = new MaterialPropertyBlock();
         }
 
         GameObject obj = GameObject.FindGameObjectWithTag("Player");
         if (obj)
+        {
             player = obj.transform;
+            if (gravityPlayerController == null) gravityPlayerController = obj.GetComponent<GravityPlayerController>();
+        }
     }
 
     void Update()
@@ -76,15 +86,16 @@ public class Enemy : MonoBehaviour
             // �ǰ� ���󿡼� ���� �������� �ڿ������� ���ƿ��� ����
             if (enemyRenderer != null)
             {
-                enemyRenderer.material.color = Color.Lerp(originalColor, hitColor, stunTimer / stunDuration);
+                SetHitColor(Color.Lerp(originalColor, hitColor, stunTimer / stunDuration));
             }
 
             return; // ���� Ÿ�̸Ӱ� ���� ���ȿ��� �̵� �� ���� ������ �������� ���� (return)
         }
-        else if (enemyRenderer != null && enemyRenderer.material.color != originalColor)
+        else if (enemyRenderer != null && showingHitColor)
         {
             // ������ ������ ���� �������� Ȯ���ϰ� ����
-            enemyRenderer.material.color = originalColor;
+            SetHitColor(originalColor);
+            showingHitColor = false;
         }
 
         // 2. �⺻ AI ���� (���� ���°� �ƴ� ���� �����)
@@ -133,12 +144,14 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (dying || damage <= 0f) return;
         hp -= damage;
+        if (gravityPlayerController != null) gravityPlayerController.ShowHitMarker(hp <= 0f);
 
         if (hp <= 0)
         {
             Die();
-            gravityPlayerController.OnEnemyKilled(); // 적을 처치하면 행복도 10 증가
+            if (gravityPlayerController != null) gravityPlayerController.OnEnemyKilled();
         }
         else
         {
@@ -154,7 +167,8 @@ public class Enemy : MonoBehaviour
         stunTimer = stunDuration;
         if (enemyRenderer != null)
         {
-            enemyRenderer.material.color = hitColor;
+            SetHitColor(hitColor);
+            showingHitColor = true;
         }
 
         // 2. �ִϸ��̼� ��� (Animator�� ����Ǿ� ���� ���� ����)
@@ -179,7 +193,7 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("Enemy.Die called for " + gameObject.name + ", scoreValue=" + scoreValue);
+        dying = true;
 
         if (scoreManager == null)
         {
@@ -197,5 +211,12 @@ public class Enemy : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    void SetHitColor(Color color)
+    {
+        enemyRenderer.GetPropertyBlock(hitProperties);
+        hitProperties.SetColor(colorProperty, color);
+        enemyRenderer.SetPropertyBlock(hitProperties);
     }
 }

@@ -640,13 +640,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 943229589}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: QuitGame
-        m_Mode: 1
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2164,13 +2164,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 943229589}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: RestartGame
-        m_Mode: 1
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -9397,15 +9397,23 @@ MonoBehaviour:
   brutePrefab: {fileID: 0}
   spawnHole: {fileID: 1823013139}
   spawnRadius: 2
-  initialInterval: 2
-  minInterval: 0.3
+  initialInterval: 3.5
+  minInterval: 1.4
   difficultyTickInterval: 9.46
   intervalDecreaseRate: 0.076
-  bruteChance: 0.2
+  bruteChance: 0
   bruteChanceIncrease: 0.02
-  maxBruteChance: 0.5
-  maxEnemyCount: 10000
+  maxBruteChance: 0
+  maxEnemyCount: 15
   spawnDropForce: 2
+  useSurvivalPacing: 1
+  openingDelay: 5
+  rampDuration: 180
+  openingEnemyLimit: 3
+  recoveryInterval: 50
+  recoveryDuration: 8
+  openingMoveSpeed: 3.5
+  finalMoveSpeed: 6
 --- !u!114 &811475070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9421,8 +9429,8 @@ MonoBehaviour:
   timeItemPrefab: {fileID: 5170540758146524564, guid: aecce2cf8bd4a374283d387acf984043, type: 3}
   spawnPoints:
   - {fileID: 80247487}
-  spawnInterval: 59.1
-  maxItemsOnMap: 6
+  spawnInterval: 45
+  maxItemsOnMap: 2
 --- !u!114 &811475071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9619,7 +9627,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 88.3
+  field of view: 89
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -10209,6 +10217,8 @@ MonoBehaviour:
   dashCooldown: 1
   maxHp: 100
   currentHp: 0
+  contactDamage: 10
+  contactInvulnerability: 0.65
   globalVolume: {fileID: 823454086}
   bullet: {fileID: 4426096683084289242, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
   hpText: {fileID: 1055780759}
@@ -10221,11 +10231,11 @@ MonoBehaviour:
   feverBulletDamage: 125
   happiness: 0
   maxHappiness: 100
-  happinessPerKill: 5
+  happinessPerKill: 10
   happinessText: {fileID: 1479985445}
-  feverDuration: 20
+  feverDuration: 8
   feverMoveSpeedMultiplier: 1.3
-  feverHealPerSecond: 8
+  feverHealPerSecond: 5
   feverFadeImage: {fileID: 2047387139}
   feverFadeInTime: 0.1
   feverFadeOutTime: 0.06
@@ -10662,6 +10672,7 @@ GameObject:
   - component: {fileID: 943229586}
   - component: {fileID: 943229588}
   - component: {fileID: 943229587}
+  - component: {fileID: 943229589}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -10729,6 +10740,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 943229585}
   m_CullTransparentMesh: 1
+--- !u!114 &943229589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943229585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec7f63aa494ed54e9cb67ac503aa67d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenu
+  mainMenuPanel: {fileID: 0}
+  SettingMenuPanel: {fileID: 0}
+  audioSettingsPanel: {fileID: 0}
+  videoSettingsPanel: {fileID: 0}
+  controlsSettingsPanel: {fileID: 0}
 --- !u!1 &961577677
 GameObject:
   m_ObjectHideFlags: 0

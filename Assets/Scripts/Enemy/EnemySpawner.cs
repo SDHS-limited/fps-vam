@@ -52,6 +52,25 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("스폰 시 위쪽으로 살짝 튀어나오는 힘 (Rigidbody 사용 시)")]
     public float spawnDropForce = 2.0f;
 
+    [Header("생존 모드 페이싱")]
+    public bool useSurvivalPacing;
+    [Min(0f)] public float openingDelay = 6f;
+    [Min(1f)] public float rampDuration = 150f;
+    [Min(1)] public int openingEnemyLimit = 6;
+    [Min(1f)] public float recoveryInterval = 40f;
+    [Min(0f)] public float recoveryDuration = 6f;
+    public float openingMoveSpeed = 4.2f;
+    public float finalMoveSpeed = 6.5f;
+    private float elapsed;
+    private float startingBruteChance;
+
+    public float PacingProgress => Mathf.Clamp01((elapsed - openingDelay) / Mathf.Max(1f, rampDuration));
+    public bool IsRecovery => useSurvivalPacing && elapsed > openingDelay + recoveryInterval &&
+        (elapsed - openingDelay) % Mathf.Max(1f, recoveryInterval) < recoveryDuration;
+    public int ActiveEnemyLimit => useSurvivalPacing
+        ? Mathf.Max(1, Mathf.RoundToInt(Mathf.Lerp(Mathf.Min(openingEnemyLimit, Mathf.Max(1, maxEnemyCount)), Mathf.Max(1, maxEnemyCount), PacingProgress)))
+        : maxEnemyCount;
+
     // 내부 상태
     private float currentInterval;
     private float spawnTimer;
@@ -69,6 +88,7 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
+        startingBruteChance = bruteChance;
         currentInterval = initialInterval;
         spawnTimer = currentInterval;
         difficultyTimer = 0f;
@@ -82,6 +102,22 @@ public class EnemySpawner : MonoBehaviour
         if (!isSpawning) return;
 
         float dt = Time.deltaTime;
+        if (dt <= 0f) return;
+        if (useSurvivalPacing)
+        {
+            elapsed += dt;
+            if (elapsed < openingDelay) return;
+            float progress = Mathf.SmoothStep(0f, 1f, PacingProgress);
+            currentInterval = Mathf.Lerp(initialInterval, minInterval, progress) * (IsRecovery ? 1.8f : 1f);
+            bruteChance = Mathf.Lerp(startingBruteChance, maxBruteChance, progress);
+            spawnTimer -= dt;
+            if (spawnTimer <= 0f)
+            {
+                spawnTimer = currentInterval;
+                TrySpawnEnemy();
+            }
+            return;
+        }
 
         // ── 난이도 틱: 일정 시간마다 스폰 간격 감소
         difficultyTimer += dt;
@@ -123,7 +159,8 @@ public class EnemySpawner : MonoBehaviour
         currentInterval = initialInterval;
         spawnTimer = currentInterval;
         difficultyTimer = 0f;
-        bruteChance = Mathf.Clamp(bruteChance, 0f, maxBruteChance);
+        elapsed = 0f;
+        bruteChance = startingBruteChance;
 
         // 현재 활성 적 모두 제거
         foreach (var enemy in activeEnemies)
@@ -162,7 +199,8 @@ public class EnemySpawner : MonoBehaviour
     {
         // 최대 적 수 초과 시 스폰 스킵
         CleanupDeadEnemies();
-        if (maxEnemyCount > 0 && activeEnemies.Count >= maxEnemyCount)
+        int limit = ActiveEnemyLimit;
+        if (limit > 0 && activeEnemies.Count >= limit)
             return;
 
         // 스폰 위치 계산 (홀 중심 + 랜덤 오프셋)
@@ -171,6 +209,7 @@ public class EnemySpawner : MonoBehaviour
         // 소형 / 대형 결정
         bool spawnBrute = Random.value < bruteChance;
         GameObject prefab = spawnBrute ? brutePrefab : runnerPrefab;
+        if (prefab == null) prefab = runnerPrefab != null ? runnerPrefab : brutePrefab;
 
         if (prefab == null)
         {
@@ -180,6 +219,8 @@ public class EnemySpawner : MonoBehaviour
 
         // 생성
         GameObject enemy = Instantiate(prefab, spawnPos, Quaternion.identity);
+        if (useSurvivalPacing && enemy.TryGetComponent<Enemy>(out var behavior))
+            behavior.moveSpeed = Mathf.Lerp(openingMoveSpeed, finalMoveSpeed, PacingProgress);
         activeEnemies.Add(enemy);
 
         // 낙하 물리 적용 (Rigidbody가 있을 경우)
@@ -188,7 +229,6 @@ public class EnemySpawner : MonoBehaviour
         // 스폰 이벤트
         OnEnemySpawned?.Invoke(enemy);
 
-        Debug.Log($"[Spawner] {(spawnBrute ? "BRUTE" : "Runner")} 스폰 @ {spawnPos} | 현재 적 수: {activeEnemies.Count}");
     }
 
     private Vector3 GetSpawnPosition()

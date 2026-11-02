@@ -26,6 +26,9 @@ public class Bullet : MonoBehaviour
     private bool    hasHit = false;
     private Transform owner;
     private bool straightFlight;
+    private Renderer[] cachedRenderers;
+
+    void Awake() { cachedRenderers = GetComponentsInChildren<Renderer>(true); }
 
     public void Init(Vector3 direction, float spd, float dmg, Transform shotOwner = null, bool flyStraight = false)
     {
@@ -78,23 +81,13 @@ public class Bullet : MonoBehaviour
     {
         if (!straightFlight && owner == null)
             return Physics.Raycast(transform.position, move.normalized, out closest, move.magnitude + 0.05f, hitMask);
-        closest = default;
-        float nearest = float.PositiveInfinity;
-        foreach (var hit in Physics.RaycastAll(transform.position, move.normalized, move.magnitude, hitMask, QueryTriggerInteraction.Ignore))
-        {
-            if (hit.collider.GetComponentInParent<Bullet>() != null) continue;
-            if (owner != null && hit.transform.IsChildOf(owner)) continue;
-            if (hit.distance >= nearest) continue;
-            closest = hit;
-            nearest = hit.distance;
-        }
-        return nearest < float.PositiveInfinity;
+        return ShotRaycast.Closest(new Ray(transform.position, move.normalized), move.magnitude, hitMask, owner, out closest);
     }
 
     void OnGroundHit(RaycastHit hit)
     {
         hasHit = true;
-        foreach (var r in GetComponentsInChildren<Renderer>())
+        foreach (var r in cachedRenderers)
             r.enabled = false;
 
         if (hitEffectPrefab)
@@ -112,9 +105,7 @@ void OnHit(RaycastHit hit)
         hasHit = true;
 
         // ★ 테스트용 로그: 총알이 대체 뭘 때렸는지 유니티 콘솔창(Console)에 출력합니다.
-        Debug.Log("<color=yellow>총알이 때린 오브젝트: " + hit.collider.gameObject.name + "</color>");
 
-        CubeFace face = hit.collider.GetComponentInParent<CubeFace>();
         
         // ★ GetComponent를 GetComponentInParent로 변경
         // (자식 콜라이더에 맞아도 부모에 있는 Enemy 스크립트를 찾아냅니다)
@@ -123,7 +114,6 @@ void OnHit(RaycastHit hit)
         if (enemy != null)
         {
             enemy.TakeDamage(damage);
-            Debug.Log("<color=red>적중! 적에게 데미지 들어감</color>");
         }
 
         if (hitEffectPrefab)
@@ -138,7 +128,7 @@ void OnHit(RaycastHit hit)
     void ReturnToPool()
     {
         // 풀 반환 전 Renderer 다시 켜두기 (재사용 대비)
-        foreach (var r in GetComponentsInChildren<Renderer>())
+        foreach (var r in cachedRenderers)
             r.enabled = true;
 
         gameObject.SetActive(false);

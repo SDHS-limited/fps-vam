@@ -32,6 +32,8 @@ public class PuaseManager : MonoBehaviour
     }
     public void Restart()
     {
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // 현재 씬 재시작
     }
     public void Option()
@@ -40,6 +42,10 @@ public class PuaseManager : MonoBehaviour
     }
     public void Quit()
     {
-        SceneManager.LoadScene("MainMenu"); // 메인 메뉴 씬으로 이동
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        SceneManager.LoadScene("MainTitle"); // 메인 메뉴 씬으로 이동
     }
 }

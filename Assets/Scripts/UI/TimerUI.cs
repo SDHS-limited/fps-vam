@@ -22,6 +22,7 @@ public class TimerUI : MonoBehaviour
 
     // 타임 오버가 중복 실행되지 않도록 막는 플래그 (매우 중요)
     private bool isGameOver = false;
+    private int displayedSeconds = -1;
 
     void Update()
     {
@@ -41,7 +42,12 @@ public class TimerUI : MonoBehaviour
             int min = (int)(timer / 60);
             int sec = (int)(timer % 60);
 
-            timerText.text = $"{min:00}:{sec:00}";
+            int totalSeconds = (int)timer;
+            if (displayedSeconds != totalSeconds)
+            {
+                displayedSeconds = totalSeconds;
+                timerText.text = $"{min:00}:{sec:00}";
+            }
         }
     }
 

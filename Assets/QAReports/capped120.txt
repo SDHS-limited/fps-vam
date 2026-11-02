@@ -1,0 +1,70 @@
+Run=capped120, samples=332, shots=19, enemies=23
+Frame ms: mean=60.874, p50=8.647, p95=63.557, max=1440.881
+Main thread ms: mean=60.851, p50=8.582, p95=57.969, max=1441.558
+GC bytes/frame: mean=36330.169, p50=22275.000, p95=82089.000, max=623548.000
+Profiler sampled frames=11
+Main Thread: 9.8667 ms/sample
+PlayerLoop: 6.7036 ms/sample
+UpdateScene: 5.1358 ms/sample
+EditorLoop: 2.6954 ms/sample
+WaitForLastPresentation: 1.9848 ms/sample
+Semaphore.WaitForSignal: 1.9845 ms/sample
+TimeUpdate.WaitForLastPresentationAndUpdateTime: 1.8147 ms/sample
+GfxDeviceD3D12.WaitForLastPresentation: 1.8100 ms/sample
+GfxDeviceD3D12.WaitForLastPresentation.WaitForGPU: 1.8088 ms/sample
+RenderPlayModeViewCameras: 1.5670 ms/sample
+UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]: 1.5219 ms/sample
+Inl_UniversalRenderTotal: 1.4986 ms/sample
+Inl_RenderCameraStack: 1.4612 ms/sample
+Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Camera: 0.9139 ms/sample
+Inl_ScriptableRenderContext.Submit: 0.4531 ms/sample
+FixedUpdate.PhysicsFixedUpdate: 0.4299 ms/sample
+Profiler.FlushCounters: 0.4227 ms/sample
+Profiler.FlushMemoryCounters: 0.3888 ms/sample
+UniversalRenderPipeline.RenderSingleCameraInternal: Camera: 0.3678 ms/sample
+ExecuteRenderGraph: 0.3466 ms/sample
+WaitForJobGroupID: 0.3003 ms/sample
+Physics.RunSimulationStage: 0.2937 ms/sample
+Physics.Simulate: 0.2935 ms/sample
+PxScene.simulate: 0.2711 ms/sample
+Inl_ExecuteRenderGraph: 0.2709 ms/sample
+FixedUpdate.ScriptRunBehaviourFixedUpdate: 0.2562 ms/sample
+FixedBehaviourUpdate: 0.2556 ms/sample
+Inl_RecordRenderGraph: 0.2422 ms/sample
+Inl_On Record Render Graph: 0.2354 ms/sample
+Assembly-CSharp.dll!::EnemyGravity.FixedUpdate() [Invoke]: 0.1956 ms/sample
+CullScriptable: 0.1879 ms/sample
+Update.ScriptRunBehaviourUpdate: 0.1252 ms/sample
+BehaviourUpdate: 0.1247 ms/sample
+DrawScreenSpaceUI: 0.1160 ms/sample
+Inl_UniversalRenderPipeline.ComputeShadowCasterCullingInfos: 0.1028 ms/sample
+Physics.SyncTransforms: 0.0933 ms/sample
+SceneCulling: 0.0917 ms/sample
+EngineJob: 0.0830 ms/sample
+TransformChangeSystem: 0.0820 ms/sample
+Physics.Raycast: 0.0797 ms/sample
+Physics.PrepareSimulationStage: 0.0775 ms/sample
+EndRenderQueueExtraction: 0.0747 ms/sample
+GUI.Repaint: 0.0698 ms/sample
+PostLateUpdate.UpdateAllRenderers: 0.0614 ms/sample
+Physics.PublishResultsStage: 0.0573 ms/sample
+Blit Bloom Mipmaps: 0.0542 ms/sample
+Shadows.PrepareDrawShadows: 0.0507 ms/sample
+CullResults.CreateSharedRendererScene: 0.0480 ms/sample
+PxsContext.contactManagerDiscreteUpdate: 0.0475 ms/sample
+RenderLoop.ScheduleDraw: 0.0467 ms/sample
+PostLateUpdate.PlayerUpdateCanvases: 0.0460 ms/sample
+Assembly-CSharp.dll!::GravityPlayerController.FixedUpdate() [Invoke]: 0.0439 ms/sample
+UIEvents.WillRenderCanvases: 0.0433 ms/sample
+UGUI.Rendering.UpdateBatches: 0.0430 ms/sample
+UI.RenderOverlays: 0.0403 ms/sample
+ExecuteRenderQueueJob: 0.0399 ms/sample
+Physics.CalculateChangedColliderTransforms: 0.0382 ms/sample
+Inl_Setup Forward Lights: 0.0376 ms/sample
+Inl_Forward+ Setup: 0.0368 ms/sample
+Inl_Setup Light Constants: 0.0366 ms/sample
+Inl_Blit Bloom Mipmaps: 0.0361 ms/sample
+PostLateUpdate.UpdateAudio: 0.0350 ms/sample
+Material.SetPassFast: 0.0338 ms/sample
+Draw Main Light Shadowmap: 0.0329 ms/sample
+AudioManager.Update: 0.0327 ms/sample

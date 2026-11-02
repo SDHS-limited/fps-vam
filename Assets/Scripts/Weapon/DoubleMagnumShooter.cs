@@ -62,6 +62,7 @@ public class DoubleMagnumShooter : MonoBehaviour
  
     void Update()
     {
+        if (Time.timeScale == 0f || KeyManager.instance == null) return;
         if (Input.GetKeyDown(KeyManager.instance.keys["Attack"]) && Time.time >= nextFireTime)
             Shoot();
             
@@ -138,15 +139,7 @@ public class DoubleMagnumShooter : MonoBehaviour
         closest = default;
         var bullet = bulletPrefab != null ? bulletPrefab.GetComponent<Bullet>() : null;
         int mask = bullet != null ? bullet.hitMask.value : Physics.DefaultRaycastLayers;
-        float nearest = float.PositiveInfinity;
-        foreach (var hit in Physics.RaycastAll(ray, distance, mask, QueryTriggerInteraction.Ignore))
-        {
-            if (hit.transform.IsChildOf(transform.root) || hit.collider.GetComponentInParent<Bullet>() != null) continue;
-            if (hit.distance >= nearest) continue;
-            closest = hit;
-            nearest = hit.distance;
-        }
-        return nearest < float.PositiveInfinity;
+        return ShotRaycast.Closest(ray, distance, mask, transform.root, out closest);
     }
  
     void InitPool()

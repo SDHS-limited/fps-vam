@@ -59,6 +59,11 @@ public class ShotgunShooter : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale == 0f)
+        {
+            inputBufferTimer = 0f;
+            return;
+        }
         // 발사 입력
         if (Input.GetButtonDown("Fire1"))
         {
