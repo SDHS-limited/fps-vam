@@ -16,13 +16,18 @@ public class DoubleMagnumShooter : MonoBehaviour
     public GameObject bulletPrefab;
     public float bulletSpeed  = 120f;
     public float bulletDamage = 75f;
+
+    [Header("── 중앙 조준 ──")]
+    public Camera aimCamera;
+    [Min(1f)] public float aimDistance = 300f;
  
     [Header("── 발사 설정 ──")]
     public float fireRate = 0.55f;
  
     [Header("── 이펙트 ──")]
-    public ParticleSystem muzzleFlashLeft;
-    public ParticleSystem muzzleFlashRight;
+    // public ParticleSystem muzzleFlashLeft;
+    // public ParticleSystem muzzleFlashRight;
+    public MagnumMuzzleFlash muzzleFlashPrefab;
     public AudioClip      shootSound;
  
     [Header("── 오브젝트 풀 ──")]
@@ -33,9 +38,13 @@ public class DoubleMagnumShooter : MonoBehaviour
     private GameObject[] pool;
     private int          poolIndex = 0;
     public AudioSource  audioSource;
+    private MagnumMuzzleFlash flashLeft;
+    private MagnumMuzzleFlash flashRight;
  
     void Start()
     {
+        if (aimCamera == null) aimCamera = GetComponentInParent<Camera>();
+        if (aimCamera == null) aimCamera = Camera.main;
         // 부모가 아닌 현재 오브젝트에서 AudioSource를 찾고, 없다면 자동으로 추가합니다.
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -44,6 +53,11 @@ public class DoubleMagnumShooter : MonoBehaviour
         }
 
         InitPool(); //
+        if (muzzleFlashPrefab != null)
+        {
+            flashLeft = Instantiate(muzzleFlashPrefab);
+            flashRight = Instantiate(muzzleFlashPrefab);
+        }
     }
  
     void Update()
@@ -64,7 +78,8 @@ public class DoubleMagnumShooter : MonoBehaviour
  
         SpawnBullet(barrel);
  
-        //(useLeft ? muzzleFlashLeft : muzzleFlashRight)?.Play();
+        (useLeft ? flashLeft : flashRight)?.Play(barrel);
+        // (useLeft ? muzzleFlashLeft : muzzleFlashRight)?.Play();
         audioSource?.PlayOneShot(shootSound);
  
         // ★ 발사한 쪽 팔만 반동
@@ -73,16 +88,65 @@ public class DoubleMagnumShooter : MonoBehaviour
         cameraShake?.Shake(0.1f, 0.1f);
     }
  
+    void OnDisable()
+    {
+        flashLeft?.Hide();
+        flashRight?.Hide();
+    }
+
+    void OnDestroy()
+    {
+        if (flashLeft != null) Destroy(flashLeft.gameObject);
+        if (flashRight != null) Destroy(flashRight.gameObject);
+    }
+
     void SpawnBullet(Transform barrel)
     {
         if (bulletPrefab == null || barrel == null) return;
  
+        Vector3 spawnPosition = barrel.position;
+        Vector3 target = GetAimPoint(barrel);
+        // A muzzle pushed through nearby cover must not spawn a bullet beyond it.
+        if (aimCamera != null)
+        {
+            Vector3 toMuzzle = spawnPosition - aimCamera.transform.position;
+            if (TryAimHit(new Ray(aimCamera.transform.position, toMuzzle), toMuzzle.magnitude, out RaycastHit cover))
+                spawnPosition = cover.point - toMuzzle.normalized * 0.01f;
+        }
+        Vector3 direction = (target - spawnPosition).normalized;
+        if (direction.sqrMagnitude < 0.001f) direction = barrel.forward;
         GameObject bulletObj = GetBulletFromPool();
-        bulletObj.transform.position = barrel.position;
-        bulletObj.transform.rotation = barrel.rotation;
+        bulletObj.transform.position = spawnPosition;
+        bulletObj.transform.rotation = Quaternion.LookRotation(direction);
         bulletObj.SetActive(true);
  
-        bulletObj.GetComponent<Bullet>()?.Init(barrel.forward, bulletSpeed, bulletDamage);
+        bulletObj.GetComponent<Bullet>()?.Init(direction, bulletSpeed, bulletDamage, transform.root, true);
+    }
+
+    Vector3 GetAimPoint(Transform barrel)
+    {
+        if (aimCamera == null) aimCamera = GetComponentInParent<Camera>();
+        if (aimCamera == null) aimCamera = Camera.main;
+        Ray ray = aimCamera != null
+            ? aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))
+            : new Ray(barrel.position, barrel.forward);
+        return TryAimHit(ray, aimDistance, out RaycastHit hit) ? hit.point : ray.GetPoint(aimDistance);
+    }
+
+    bool TryAimHit(Ray ray, float distance, out RaycastHit closest)
+    {
+        closest = default;
+        var bullet = bulletPrefab != null ? bulletPrefab.GetComponent<Bullet>() : null;
+        int mask = bullet != null ? bullet.hitMask.value : Physics.DefaultRaycastLayers;
+        float nearest = float.PositiveInfinity;
+        foreach (var hit in Physics.RaycastAll(ray, distance, mask, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.transform.IsChildOf(transform.root) || hit.collider.GetComponentInParent<Bullet>() != null) continue;
+            if (hit.distance >= nearest) continue;
+            closest = hit;
+            nearest = hit.distance;
+        }
+        return nearest < float.PositiveInfinity;
     }
  
     void InitPool()

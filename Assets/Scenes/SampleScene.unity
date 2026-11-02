@@ -2583,6 +2583,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityPlayerController
   audioSource: {fileID: 0}
+  EnemyPrefab: {fileID: 0}
   moveSpeed: 8
   jumpForce: 8
   airControl: 0.3
@@ -2598,10 +2599,10 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 4294967295
-  dashForce: 20
-  dashCooldown: 1
   faceDetectRange: 50
   switchCooldown: 0.25
+  dashForce: 20
+  dashCooldown: 1
   maxHp: 100
   currentHp: 0
   globalVolume: {fileID: 0}
@@ -2609,6 +2610,11 @@ MonoBehaviour:
   hpText: {fileID: 0}
   image: {fileID: 0}
   timerUI: {fileID: 0}
+  feverWaveText: {fileID: 0}
+  abilityMoveSpeedMultiplier: 1
+  abilityDamageMultiplier: 1
+  normalBulletDamage: 75
+  feverBulletDamage: 999
   happiness: 0
   maxHappiness: 100
   happinessPerKill: 20
@@ -2952,8 +2958,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009380423}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.011657071, y: 0.000000014901158, z: 0.000000029802315, w: 0.99993205}
-  m_LocalPosition: {x: -0.302, y: 0.053, z: 0.2}
+  m_LocalRotation: {x: 0.00000005960463, y: -0, z: -0.000000029802315, w: 1}
+  m_LocalPosition: {x: -0.000000079652565, y: 0.031649902, z: 0.20399958}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3073,8 +3079,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079221212}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.011656879, y: -0.00000009685753, z: -0.000000029802319, w: 0.9999321}
-  m_LocalPosition: {x: 0.302, y: 0.053, z: 0.2}
+  m_LocalRotation: {x: -0.00000011920926, y: -0.000000052154054, z: -0.000000029802315, w: 1}
+  m_LocalPosition: {x: 0.00000015930516, y: 0.031649686, z: 0.20400016}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6264,10 +6270,10 @@ MonoBehaviour:
   bulletSpeed: 120
   bulletDamage: 50
   fireRate: 0.17
-  muzzleFlashLeft: {fileID: 0}
-  muzzleFlashRight: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
   shootSound: {fileID: 0}
   poolSize: 30
+  audioSource: {fileID: 0}
 --- !u!1 &2088176271
 GameObject:
   m_ObjectHideFlags: 0

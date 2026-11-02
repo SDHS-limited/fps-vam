@@ -24,13 +24,17 @@ public class Bullet : MonoBehaviour
 
     private Vector3 velocity;
     private bool    hasHit = false;
+    private Transform owner;
+    private bool straightFlight;
 
-    public void Init(Vector3 direction, float spd, float dmg)
+    public void Init(Vector3 direction, float spd, float dmg, Transform shotOwner = null, bool flyStraight = false)
     {
         speed    = spd;
         damage   = dmg;
         velocity = direction.normalized * speed;
         hasHit   = false;
+        owner = shotOwner;
+        straightFlight = flyStraight;
     }
 
     void OnEnable()
@@ -49,11 +53,11 @@ public class Bullet : MonoBehaviour
     {
         if (hasHit) return;
 
-        velocity += Vector3.down * gravity * Time.deltaTime;
+        if (!straightFlight) velocity += Vector3.down * gravity * Time.deltaTime;
         Vector3 move = velocity * Time.deltaTime;
 
         // ★ 수정됨: hitMask를 추가하여 플레이어나 총알끼리의 충돌을 무시합니다.
-        if (Physics.Raycast(transform.position, move.normalized, out RaycastHit hit, move.magnitude + 0.05f, hitMask))
+        if (TryHit(move, out RaycastHit hit))
         {
             if (hit.collider.CompareTag(groundTag) || hit.collider.CompareTag(UIWall))
                 OnGroundHit(hit);   // 땅, 벽 → 파티클만
@@ -70,6 +74,23 @@ public class Bullet : MonoBehaviour
     }
 
     // ── 땅에 닿았을 때: 총알 숨기고 파티클만 재생
+    bool TryHit(Vector3 move, out RaycastHit closest)
+    {
+        if (!straightFlight && owner == null)
+            return Physics.Raycast(transform.position, move.normalized, out closest, move.magnitude + 0.05f, hitMask);
+        closest = default;
+        float nearest = float.PositiveInfinity;
+        foreach (var hit in Physics.RaycastAll(transform.position, move.normalized, move.magnitude, hitMask, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.collider.GetComponentInParent<Bullet>() != null) continue;
+            if (owner != null && hit.transform.IsChildOf(owner)) continue;
+            if (hit.distance >= nearest) continue;
+            closest = hit;
+            nearest = hit.distance;
+        }
+        return nearest < float.PositiveInfinity;
+    }
+
     void OnGroundHit(RaycastHit hit)
     {
         hasHit = true;

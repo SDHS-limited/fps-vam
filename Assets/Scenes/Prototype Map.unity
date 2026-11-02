@@ -1069,6 +1069,7 @@ MonoBehaviour:
   bulletDamage: 15
   pelletCount: 7
   spreadAngle: 3.08
+  spreadBias: 2
   fireRate: 0.5
   muzzleFlash: {fileID: 0}
   shootSound: {fileID: 0}
@@ -2365,8 +2366,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 880260634}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.011657071, y: 0.000000014901158, z: 0.000000029802315, w: 0.99993205}
-  m_LocalPosition: {x: -0.302, y: 0.053, z: 0.2}
+  m_LocalRotation: {x: 0.00000005960463, y: -0, z: -0.000000029802315, w: 1}
+  m_LocalPosition: {x: 0.00000006770468, y: 0.03164991, z: 0.20399958}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5358,6 +5359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GravityPlayerController
   audioSource: {fileID: 1496560247}
+  EnemyPrefab: {fileID: 0}
   moveSpeed: 8
   jumpForce: 10
   airControl: 0.3
@@ -5373,10 +5375,10 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 4294967295
-  dashForce: 27.9
-  dashCooldown: 1
   faceDetectRange: 1
   switchCooldown: 0.25
+  dashForce: 27.9
+  dashCooldown: 1
   maxHp: 100
   currentHp: 0
   globalVolume: {fileID: 944033543}
@@ -5384,6 +5386,11 @@ MonoBehaviour:
   hpText: {fileID: 1861719531}
   image: {fileID: 68216207}
   timerUI: {fileID: 564494874}
+  feverWaveText: {fileID: 0}
+  abilityMoveSpeedMultiplier: 1
+  abilityDamageMultiplier: 1
+  normalBulletDamage: 75
+  feverBulletDamage: 999
   happiness: 0
   maxHappiness: 100
   happinessPerKill: 5
@@ -6202,8 +6209,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2120846035}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.011656879, y: -0.00000009685753, z: -0.000000029802319, w: 0.9999321}
-  m_LocalPosition: {x: 0.302, y: 0.053, z: 0.2}
+  m_LocalRotation: {x: -0.00000011920926, y: -0.000000052154054, z: -0.000000029802315, w: 1}
+  m_LocalPosition: {x: 0.000000047791545, y: 0.031649657, z: 0.2040002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6263,10 +6270,10 @@ MonoBehaviour:
   bulletSpeed: 120
   bulletDamage: 50
   fireRate: 0.14
-  muzzleFlashLeft: {fileID: 0}
-  muzzleFlashRight: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
   shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
   poolSize: 30
+  audioSource: {fileID: 0}
 --- !u!1001 &8354416668599502667
 PrefabInstance:
   m_ObjectHideFlags: 0
