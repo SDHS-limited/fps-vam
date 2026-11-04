@@ -121,7 +121,9 @@ public class DoubleMagnumShooter : MonoBehaviour
         bulletObj.transform.rotation = Quaternion.LookRotation(direction);
         bulletObj.SetActive(true);
  
-        bulletObj.GetComponent<Bullet>()?.Init(direction, bulletSpeed, bulletDamage, transform.root, true);
+        bulletObj.GetComponent<Bullet>()?.Init(direction, bulletSpeed,
+            GetComponentInParent<GravityPlayerController>()?.GetBulletDamage(bulletDamage) ?? bulletDamage,
+            transform.root, true);
     }
 
     Vector3 GetAimPoint(Transform barrel)

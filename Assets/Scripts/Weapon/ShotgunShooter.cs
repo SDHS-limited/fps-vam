@@ -149,7 +149,7 @@ public class ShotgunShooter : MonoBehaviour
             bullet.Init(
                 fireDirection,
                 bulletSpeed,
-                bulletDamage
+                GetComponentInParent<GravityPlayerController>()?.GetBulletDamage(bulletDamage) ?? bulletDamage
             );
         }
 

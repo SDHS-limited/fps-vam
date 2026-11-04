@@ -10228,7 +10228,7 @@ MonoBehaviour:
   abilityMoveSpeedMultiplier: 1
   abilityDamageMultiplier: 1
   normalBulletDamage: 75
-  feverBulletDamage: 125
+  feverBulletDamage: 999
   happiness: 0
   maxHappiness: 100
   happinessPerKill: 10

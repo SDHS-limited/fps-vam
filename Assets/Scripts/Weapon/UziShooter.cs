@@ -122,7 +122,7 @@ public class UziShooter : MonoBehaviour
             bullet.Init(
                 barrel.forward,
                 bulletSpeed,
-                bulletDamage
+                GetComponentInParent<GravityPlayerController>()?.GetBulletDamage(bulletDamage) ?? bulletDamage
             );
         }
     }

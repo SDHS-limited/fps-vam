@@ -331,14 +331,16 @@ public class GravityPlayerController : MonoBehaviour
 
     private void UpdateBulletDamage()
     {
-        if (bullet == null) return;
-
-        int baseDamage = IsFeverActive
-            ? feverBulletDamage
-            : normalBulletDamage;
-
-        bullet.damage = Mathf.RoundToInt(baseDamage * abilityDamageMultiplier);
+        if (bullet != null)
+            bullet.damage = GetBulletDamage(normalBulletDamage);
     }
+
+    public float GetBulletDamage(float weaponDamage)
+    {
+        float baseDamage = IsFeverActive ? feverBulletDamage : weaponDamage;
+        return baseDamage * abilityDamageMultiplier;
+    }
+
 
     public void OnEnemyKilled()
     {
@@ -357,7 +359,7 @@ public class GravityPlayerController : MonoBehaviour
 
         // 이동 강화는 Move()에서 별도로 곱해지므로 피버와 함께 유지됨
         moveSpeed = baseMoveSpeedCache * feverMoveSpeedMultiplier;
-
+        Debug.Log($"Fever started! Bullet damage: {GetBulletDamage(normalBulletDamage)}, Move speed: {moveSpeed}");
         // 피버 텍스트 표시 + 파도 애니메이션 실행
         if (feverWaveText != null)
         {
