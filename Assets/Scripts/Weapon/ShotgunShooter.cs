@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class ShotgunShooter : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class ShotgunShooter : MonoBehaviour
 
     [Header("── 총알 및 산탄 설정 ──")]
     public GameObject bulletPrefab;
+    public Camera aimCamera;
+    [Min(1f)] public float aimDistance = 300f;
 
     [Tooltip("총알 속도")]
     public float bulletSpeed = 120f;
@@ -35,7 +38,10 @@ public class ShotgunShooter : MonoBehaviour
 
     [Header("── 이펙트 ──")]
     public ParticleSystem muzzleFlash;
+    public MagnumMuzzleFlash muzzleFlashPrefab;
     public AudioClip shootSound;
+    public AudioMixerGroup sfxMixer;
+    [Range(0f, 1f)] public float shotVolume = 0.85f;
 
     [Header("── 오브젝트 풀 ──")]
     public int poolSize = 100;
@@ -50,10 +56,22 @@ public class ShotgunShooter : MonoBehaviour
     private int poolIndex = 0;
 
     private AudioSource audioSource;
+    private MagnumMuzzleFlash flash;
 
     void Start()
     {
-        audioSource = GetComponentInParent<AudioSource>();
+        if (aimCamera == null) aimCamera = GetComponentInParent<Camera>();
+        if (aimCamera == null) aimCamera = Camera.main;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+        audioSource.outputAudioMixerGroup = sfxMixer;
+        if (muzzleFlashPrefab != null)
+        {
+            flash = Instantiate(muzzleFlashPrefab);
+            flash.size *= 1.25f;
+        }
         InitPool();
     }
 
@@ -64,8 +82,9 @@ public class ShotgunShooter : MonoBehaviour
             inputBufferTimer = 0f;
             return;
         }
-        // 발사 입력
-        if (Input.GetButtonDown("Fire1"))
+        KeyCode attackKey = KeyManager.instance != null && KeyManager.instance.keys.TryGetValue("Attack", out var mapped)
+            ? mapped : KeyCode.Mouse0;
+        if (Input.GetKeyDown(attackKey))
         {
             inputBufferTimer = inputBufferWindow;
         }
@@ -96,18 +115,28 @@ public class ShotgunShooter : MonoBehaviour
         // 산탄 발사
         // ─────────────────────────────
 
+        Vector3 spawnPosition = barrel.position;
+        Vector3 target = GetAimPoint();
+        if (aimCamera != null)
+        {
+            Vector3 toMuzzle = spawnPosition - aimCamera.transform.position;
+            if (TryAimHit(new Ray(aimCamera.transform.position, toMuzzle), toMuzzle.magnitude, out RaycastHit cover))
+                spawnPosition = cover.point - toMuzzle.normalized * 0.01f;
+        }
+        Vector3 forward = (target - spawnPosition).normalized;
+        if (forward.sqrMagnitude < 0.001f) forward = barrel.forward;
         for (int i = 0; i < pelletCount; i++)
         {
-            SpawnBullet(barrel);
+            SpawnBullet(spawnPosition, forward);
         }
 
-        // 총구 이펙트
-        //muzzleFlash?.Play();
+        muzzleFlash?.Play();
+        flash?.Play(barrel);
 
         // 사운드
         if (shootSound != null)
         {
-            audioSource?.PlayOneShot(shootSound);
+            audioSource.PlayOneShot(shootSound, shotVolume);
         }
 
         // 반동
@@ -118,10 +147,27 @@ public class ShotgunShooter : MonoBehaviour
         cameraShake?.Shake(0.3f, 0.2f);
     }
 
-    void SpawnBullet(Transform spawnPoint)
+    void OnDisable() { flash?.Hide(); }
+    void OnDestroy() { if (flash != null) Destroy(flash.gameObject); }
+
+    Vector3 GetAimPoint()
     {
-        if (bulletPrefab == null || spawnPoint == null)
-            return;
+        Ray ray = aimCamera != null
+            ? aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))
+            : new Ray(barrel.position, barrel.forward);
+        return TryAimHit(ray, aimDistance, out RaycastHit hit) ? hit.point : ray.GetPoint(aimDistance);
+    }
+
+    bool TryAimHit(Ray ray, float distance, out RaycastHit closest)
+    {
+        var bullet = bulletPrefab != null ? bulletPrefab.GetComponent<Bullet>() : null;
+        int mask = bullet != null ? bullet.hitMask.value : Physics.DefaultRaycastLayers;
+        return ShotRaycast.Closest(ray, distance, mask, transform.root, out closest);
+    }
+
+    void SpawnBullet(Vector3 spawnPosition, Vector3 forward)
+    {
+        if (bulletPrefab == null) return;
 
         GameObject bulletObj = GetBulletFromPool();
 
@@ -130,12 +176,12 @@ public class ShotgunShooter : MonoBehaviour
         // ─────────────────────────────
 
         Vector3 fireDirection = GetSpreadDirection(
-            spawnPoint.forward,
+            forward,
             spreadAngle
         );
 
         // 총구 위치
-        bulletObj.transform.position = spawnPoint.position;
+        bulletObj.transform.position = spawnPosition;
 
         // 탄환 방향
         bulletObj.transform.rotation =
@@ -149,7 +195,9 @@ public class ShotgunShooter : MonoBehaviour
             bullet.Init(
                 fireDirection,
                 bulletSpeed,
-                GetComponentInParent<GravityPlayerController>()?.GetBulletDamage(bulletDamage) ?? bulletDamage
+                bulletDamage,
+                transform.root,
+                true
             );
         }
 

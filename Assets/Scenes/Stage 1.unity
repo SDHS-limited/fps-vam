@@ -736,6 +736,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShotgunShooter
   barrel: {fileID: 1736068263}
+  aimCamera: {fileID: 823454085}
+  aimDistance: 300
   recoilLeft: {fileID: 344181729}
   recoilRight: {fileID: 196424195}
   cameraShake: {fileID: 823454078}
@@ -747,7 +749,10 @@ MonoBehaviour:
   spreadBias: 2
   fireRate: 0.5
   muzzleFlash: {fileID: 0}
-  shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
+  shootSound: {fileID: 8300000, guid: b3ac94e896f748cdaf25b27f06d774ad, type: 3}
+  sfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  shotVolume: 0.85
   poolSize: 100
   inputBufferWindow: 0.15
 --- !u!1 &146354012
@@ -10224,6 +10229,10 @@ MonoBehaviour:
   hpText: {fileID: 1055780759}
   image: {fileID: 943229587}
   timerUI: {fileID: 823764540}
+  hitSound: {fileID: 8300000, guid: 6bc6a212fcb246ef9d0b6af5b38b94d0, type: 3}
+  killSound: {fileID: 8300000, guid: 9f70d18c247e4d47bdad0dc6cff6a3c7, type: 3}
+  combatSfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  combatFeedbackVolume: 0.5
   feverWaveText: {fileID: 2128388582}
   abilityMoveSpeedMultiplier: 1
   abilityDamageMultiplier: 1
@@ -10240,11 +10249,15 @@ MonoBehaviour:
   feverFadeInTime: 0.1
   feverFadeOutTime: 0.06
   feverFadeMaxAlpha: 0.85
-  pushRange: 10
-  pushForce: 100
-  pushBaseDamage: 15
+  pushRange: 8
+  pushRadius: 2.5
+  pushForce: 22
+  pushBaseDamage: 12
   pushCriticalMultiplier: 3
-  pushCooldown: 0
+  pushWallDamage: 180
+  pushCooldown: 7
+  pulseSound: {fileID: 8300000, guid: 379a861d04679264da0645c4768051b2, type: 3}
+  pulseSoundVolume: 0.7
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -12071,7 +12084,8 @@ MonoBehaviour:
   aimDistance: 300
   fireRate: 0.14
   muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
-  shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  shootSound: {fileID: 8300000, guid: 71de827daf6049e893a90491941e424b, type: 3}
+  shotVolume: 0.7
   poolSize: 30
   audioSource: {fileID: 1101412500}
 --- !u!1 &1157419864
@@ -14652,6 +14666,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UziShooter
   barrel: {fileID: 627616610}
+  aimCamera: {fileID: 823454085}
+  aimDistance: 300
   cameraShake: {fileID: 823454078}
   bulletPrefab: {fileID: 469325102612236275, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
   bulletSpeed: 150
@@ -14661,7 +14677,10 @@ MonoBehaviour:
   reloadAnimator: {fileID: 1088855485}
   currentAmmo: 30
   muzzleFlash: {fileID: 0}
-  shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
+  shootSound: {fileID: 8300000, guid: 3bb1f873961d4f49a5d57db60a434b81, type: 3}
+  sfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  shotVolume: 0.45
   poolSize: 40
 --- !u!1 &1903873211
 GameObject:

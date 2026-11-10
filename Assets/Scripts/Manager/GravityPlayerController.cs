@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
@@ -36,6 +38,7 @@ public class GravityPlayerController : MonoBehaviour
     public float fovLerpSpeed = 15f;
     private Camera playerCam;
     private float targetFOV = 90f;
+    private float gravityShiftFovKick;
 
     [Header("면 감지")]
     public string groundTag = "Ground";
@@ -67,10 +70,37 @@ public class GravityPlayerController : MonoBehaviour
     private bool isDie;
     public bool IsDead => isDie;
     private HitMarkerUI hitMarker;
+    [Header("Combat Feedback")]
+    public AudioClip hitSound;
+    public AudioClip killSound;
+    public AudioMixerGroup combatSfxMixer;
+    [Range(0f, 1f)] public float combatFeedbackVolume = 0.5f;
+    private AudioSource combatFeedbackAudio;
+    private float nextHitSoundAt;
+    private float nextKillSoundAt;
 
     public void ShowHitMarker(bool lethal)
     {
-        if (hitMarker != null) hitMarker.Show(lethal);
+        if (hitMarker == null || !hitMarker.Show(lethal)) return;
+        float now = Time.unscaledTime;
+        if (lethal)
+        {
+            if (killSound == null || now < nextKillSoundAt) return;
+            nextKillSoundAt = now + 0.08f;
+            combatFeedbackAudio.PlayOneShot(killSound, combatFeedbackVolume);
+        }
+        else if (hitSound != null && now >= nextHitSoundAt)
+        {
+            nextHitSoundAt = now + 0.05f;
+            combatFeedbackAudio.PlayOneShot(hitSound, combatFeedbackVolume);
+        }
+    }
+
+    public void ApplyGravityShiftFovKick(float amount)
+    {
+        gravityShiftFovKick = Mathf.Max(gravityShiftFovKick, amount);
+        if (playerCam != null)
+            playerCam.fieldOfView = Mathf.Min(targetFOV + 12f, playerCam.fieldOfView + amount * 0.5f);
     }
     private int displayedHappiness = int.MinValue;
     private int displayedMaxHappiness = int.MinValue;
@@ -107,13 +137,19 @@ public class GravityPlayerController : MonoBehaviour
     public float feverFadeOutTime = 0.6f;
     public float feverFadeMaxAlpha = 0.85f;
 
-    [Header("피버 - 밀치기(크리티컬) 공격")]
+    [Header("Gravity Pulse")]
     public float pushRange = 8f;
-    public float pushForce = 18f;
-    public float pushBaseDamage = 15f;
+    [Min(0.1f)] public float pushRadius = 2.5f;
+    public float pushForce = 22f;
+    public float pushBaseDamage = 12f;
     public float pushCriticalMultiplier = 3f;
-    public float pushCooldown = 0.6f;
+    [Min(0f)] public float pushWallDamage = 180f;
+    public float pushCooldown = 7f;
+    public AudioClip pulseSound;
+    [Range(0f, 1f)] public float pulseSoundVolume = 0.7f;
     public LayerMask enemyLayer;
+    private readonly Collider[] pulseTargets = new Collider[64];
+    private readonly HashSet<Enemy> pulseHitEnemies = new HashSet<Enemy>();
 
     private bool isPouncing;
     private bool hasHitEnemy;
@@ -129,6 +165,7 @@ public class GravityPlayerController : MonoBehaviour
     private float feverTimer;
     private float baseMoveSpeedCache;
     private float pushCooldownTimer;
+    private GUIStyle pulseGuiStyle;
     private Coroutine feverFadeRoutine;
 
     private Rigidbody rb;
@@ -153,12 +190,16 @@ public class GravityPlayerController : MonoBehaviour
     private void Awake()
     {
         hitMarker = HitMarkerUI.Create(this);
+        combatFeedbackAudio = gameObject.AddComponent<AudioSource>();
+        combatFeedbackAudio.playOnAwake = false;
+        combatFeedbackAudio.spatialBlend = 0f;
+        combatFeedbackAudio.outputAudioMixerGroup = combatSfxMixer;
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
         shiftMotor = GetComponent<GravityShiftMotor>();
 
         if (image != null) image.gameObject.SetActive(false);
-        if (audioSource != null) audioSource.Play();
+        if (audioSource != null && audioSource.isActiveAndEnabled) audioSource.Play();
 
         if (feverWaveText != null)
         {
@@ -257,16 +298,17 @@ public class GravityPlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyManager.instance.keys["Attack"]) &&
             Cursor.lockState != CursorLockMode.Locked)
         {
-            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
         if (cooldown > 0f) cooldown -= Time.deltaTime;
         if (flashTimer > 0f) flashTimer -= Time.deltaTime;
 
+        gravityShiftFovKick = Mathf.MoveTowards(gravityShiftFovKick, 0f, Time.deltaTime * 24f);
         if (playerCam != null)
             playerCam.fieldOfView = Mathf.Lerp(
-                playerCam.fieldOfView, targetFOV, Time.deltaTime * fovLerpSpeed);
+                playerCam.fieldOfView, targetFOV + gravityShiftFovKick, Time.deltaTime * fovLerpSpeed);
 
         UpdateFever();
     }
@@ -284,6 +326,7 @@ public class GravityPlayerController : MonoBehaviour
         if (!manualGravity) DetectFace();
         rb.AddForce(gravDir * gravStrength, ForceMode.Acceleration);
         Move();
+        if (manualGravity) shiftMotor.LimitTravelSpeed();
 
         if (jumpQueued && isGrounded)
         {
@@ -291,7 +334,7 @@ public class GravityPlayerController : MonoBehaviour
             jumpQueued = false;
         }
 
-        if (manualGravity) shiftMotor.AlignBody(Time.fixedDeltaTime);
+        if (manualGravity) shiftMotor.AlignBody();
         else AlignBody();
     }
 
@@ -455,33 +498,61 @@ public class GravityPlayerController : MonoBehaviour
 
     private void TryPushAttack()
     {
-        if (cameraTransform == null) return;
-
+        if (cameraTransform == null || isPouncing || pushCooldownTimer > 0f ||
+            Cursor.lockState != CursorLockMode.Locked) return;
         pushCooldownTimer = pushCooldown;
+        flashTimer = 0.18f;
+        if (playerCam != null && playerCam.TryGetComponent<CameraShake>(out var shake))
+            shake.Shake(0.12f, 0.18f);
+        if (pulseSound != null)
+            combatFeedbackAudio.PlayOneShot(pulseSound, pulseSoundVolume);
 
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward,
-                            out RaycastHit hit, pushRange, enemyLayer,
-                            QueryTriggerInteraction.Ignore))
+        Vector3 origin = cameraTransform.position;
+        Vector3 forward = cameraTransform.forward;
+        GravityPulseVisual.Play(origin, forward, pushRange, pushRadius);
+        pulseHitEnemies.Clear();
+        int count = Physics.OverlapCapsuleNonAlloc(
+            origin, origin + forward * pushRange, pushRadius,
+            pulseTargets, enemyLayer, QueryTriggerInteraction.Ignore);
+        for (int i = 0; i < count; i++)
         {
-            Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-            if (enemy != null)
-            {
-                Vector3 dir = Vector3.ProjectOnPlane(
-                    cameraTransform.forward, gravDir).normalized;
-                dir += -gravDir * 0.2f;
-                enemy.Knockback(dir, enemyKnockback);
-            }
+            Collider target = pulseTargets[i];
+            if (target == null) continue;
+            Enemy enemy = target.GetComponentInParent<Enemy>();
+            if (enemy == null || !pulseHitEnemies.Add(enemy)) continue;
+            Vector3 toEnemy = target.bounds.center - origin;
+            float distanceAlongAim = Vector3.Dot(toEnemy, forward);
+            if (distanceAlongAim < 0f || distanceAlongAim > pushRange ||
+                PulseBlocked(origin, target.bounds.center)) continue;
 
-            IDamageable enemyHealth = FindDamageable(hit.collider);
-            if (enemyHealth != null)
-            {
-                float finalDamage = pushBaseDamage * pushCriticalMultiplier
-                                    * abilityDamageMultiplier;
-                enemyHealth.TakeDamage(finalDamage);
-            }
-
-            flashTimer = 0.15f;
+            Vector3 spread = Vector3.ProjectOnPlane(toEnemy, forward).normalized;
+            Vector3 direction = (forward + spread * 0.22f - gravDir * 0.12f).normalized;
+            float damage = pushBaseDamage * abilityDamageMultiplier *
+                           (IsFeverActive ? pushCriticalMultiplier : 1f);
+            enemy.ApplyGravityPulse(
+                direction, pushForce, damage,
+                pushWallDamage * abilityDamageMultiplier);
         }
+    }
+
+    private bool PulseBlocked(Vector3 origin, Vector3 target)
+    {
+        Vector3 offset = target - origin;
+        float distance = offset.magnitude;
+        if (distance < 0.01f) return false;
+        foreach (RaycastHit hit in Physics.RaycastAll(
+                     origin, offset / distance, distance,
+                     Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            if (hit.collider.transform.IsChildOf(transform) ||
+                hit.collider.GetComponentInParent<Enemy>() != null ||
+                hit.collider.GetComponentInParent<TimeItem>() != null ||
+                hit.collider.GetComponentInParent<HealthItem>() != null ||
+                hit.collider.GetComponentInParent<AbilityBoxItem>() != null)
+                continue;
+            return true;
+        }
+        return false;
     }
 
     private static IDamageable FindDamageable(Collider targetCollider)
@@ -813,6 +884,28 @@ public class GravityPlayerController : MonoBehaviour
         GUI.DrawTexture(new Rect(cx - 1, cy - 12, 2, 9), Texture2D.whiteTexture);
         GUI.DrawTexture(new Rect(cx - 1, cy + 3, 2, 9), Texture2D.whiteTexture);
         GUI.color = Color.white;
+
+        if (pulseGuiStyle == null)
+        {
+            pulseGuiStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 14,
+                fontStyle = FontStyle.Bold
+            };
+        }
+        pulseGuiStyle.normal.textColor = pushCooldownTimer > 0f
+            ? new Color(0.55f, 0.72f, 0.8f)
+            : new Color(0.35f, 0.9f, 1f);
+        KeyCode pulseKey = KeyCode.Mouse1;
+        if (KeyManager.instance != null &&
+            KeyManager.instance.keys.TryGetValue("Push", out KeyCode configuredPulseKey))
+            pulseKey = configuredPulseKey;
+        string pulseStatus = pushCooldownTimer > 0f
+            ? $"PULSE {pushCooldownTimer:0.0}s"
+            : $"PULSE READY [{pulseKey}]";
+        GUI.Label(new Rect(cx - 100f, Screen.height - 48f, 200f, 24f),
+                  pulseStatus, pulseGuiStyle);
     }
 
 #if UNITY_EDITOR

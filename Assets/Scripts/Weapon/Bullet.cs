@@ -100,23 +100,15 @@ public class Bullet : MonoBehaviour
     }
 
     // ── 일반 충돌
-void OnHit(RaycastHit hit)
+    void OnHit(RaycastHit hit)
     {
         hasHit = true;
-
-        // ★ 테스트용 로그: 총알이 대체 뭘 때렸는지 유니티 콘솔창(Console)에 출력합니다.
-
-        
-        // ★ GetComponent를 GetComponentInParent로 변경
-        // (자식 콜라이더에 맞아도 부모에 있는 Enemy 스크립트를 찾아냅니다)
         Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-
+        bool showImpact = true;
         if (enemy != null)
-        {
-            enemy.TakeDamage(damage);
-        }
+            showImpact = enemy.TakeBulletHit(damage, velocity.normalized);
 
-        if (hitEffectPrefab)
+        if (showImpact && hitEffectPrefab)
         {
             var fx = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
             Destroy(fx, 2f);

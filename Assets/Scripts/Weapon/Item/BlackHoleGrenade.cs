@@ -13,6 +13,7 @@ public class BlackHoleGrenade : MonoBehaviour
 
     [Header("시각 효과(VFX) 설정")]
     public GameObject explosionParticlePrefab; // 폭발 파티클 프리팹을 연결할 변수
+    
     public float particleDestroyDelay = 2f;    // 파티클이 사라지기까지의 시간
 
     void Start()

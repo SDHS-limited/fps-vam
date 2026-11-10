@@ -10,7 +10,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     [Header("── 팔 반동 (각각 연결) ──")]
     public ArmRecoil recoilLeft;    // L 오브젝트의 ArmRecoil
     public ArmRecoil recoilRight;   // shoulder.R 오브젝트의 ArmRecoil
-    public CameraShake cameraShake;    // 카메라 흔들림 (양쪽 공통)asd
+    public CameraShake cameraShake;
  
     [Header("── 총알 설정 ──")]
     public GameObject bulletPrefab;
@@ -29,6 +29,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     // public ParticleSystem muzzleFlashRight;
     public MagnumMuzzleFlash muzzleFlashPrefab;
     public AudioClip      shootSound;
+    [Range(0f, 1f)] public float shotVolume = 0.7f;
  
     [Header("── 오브젝트 풀 ──")]
     public int poolSize = 20;
@@ -51,6 +52,8 @@ public class DoubleMagnumShooter : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
 
         InitPool(); //
         if (muzzleFlashPrefab != null)
@@ -81,7 +84,7 @@ public class DoubleMagnumShooter : MonoBehaviour
  
         (useLeft ? flashLeft : flashRight)?.Play(barrel);
         // (useLeft ? muzzleFlashLeft : muzzleFlashRight)?.Play();
-        audioSource?.PlayOneShot(shootSound);
+        if (shootSound != null) audioSource.PlayOneShot(shootSound, shotVolume);
  
         // ★ 발사한 쪽 팔만 반동
         if (useLeft)  recoilLeft?.TriggerRecoil();

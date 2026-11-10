@@ -38,20 +38,22 @@ public sealed class HitMarkerUI : MonoBehaviour
         return ui;
     }
 
-    public void Show(bool lethal)
+    public bool Show(bool lethal)
     {
-        if (player.IsDead || Time.timeScale == 0f) return;
+        if (player.IsDead || Time.timeScale == 0f) return false;
         float now = Time.unscaledTime;
         // A shotgun pellet or another target must not overwrite a recent kill.
-        if (!lethal && now < killPriorityUntil) return;
+        if (!lethal && (now < killPriorityUntil || (marker.enabled && now - shownAt < 0.05f))) return false;
         kill = lethal;
         duration = lethal ? 0.26f : 0.15f;
         shownAt = now;
         if (lethal) killPriorityUntil = now + duration;
         marker.color = lethal ? KillColor : HitColor;
+        marker.killAccent = lethal;
         marker.strokeScale = lethal ? 1.18f : 1f;
         marker.enabled = true;
         marker.SetVerticesDirty();
+        return true;
     }
 
     void Update()
@@ -74,6 +76,7 @@ public sealed class HitMarkerUI : MonoBehaviour
 public sealed class HitMarkerGraphic : MaskableGraphic
 {
     public float strokeScale = 1f;
+    public bool killAccent;
 
     protected override void OnPopulateMesh(VertexHelper vh)
     {
@@ -82,16 +85,31 @@ public sealed class HitMarkerGraphic : MaskableGraphic
         for (int i = 0; i < 4; i++)
         {
             Vector2 direction = new Vector2((i & 1) == 0 ? -diagonal : diagonal, (i & 2) == 0 ? -diagonal : diagonal);
-            Vector2 normal = new Vector2(-direction.y, direction.x) * 1.25f;
             Vector2 start = direction * (9f * strokeScale);
             Vector2 end = direction * (18f * strokeScale);
-            int index = vh.currentVertCount;
-            vh.AddVert(start - normal, color, Vector2.zero);
-            vh.AddVert(start + normal, color, Vector2.zero);
-            vh.AddVert(end + normal, color, Vector2.zero);
-            vh.AddVert(end - normal, color, Vector2.zero);
-            vh.AddTriangle(index, index + 1, index + 2);
-            vh.AddTriangle(index, index + 2, index + 3);
+            AddStroke(vh, start, end, 1.25f);
         }
+        if (!killAccent) return;
+        Vector2 top = Vector2.up * (24f * strokeScale);
+        Vector2 right = Vector2.right * (24f * strokeScale);
+        Vector2 bottom = -top;
+        Vector2 left = -right;
+        AddStroke(vh, top, right, 1f);
+        AddStroke(vh, right, bottom, 1f);
+        AddStroke(vh, bottom, left, 1f);
+        AddStroke(vh, left, top, 1f);
+    }
+
+    void AddStroke(VertexHelper vh, Vector2 start, Vector2 end, float halfWidth)
+    {
+        Vector2 direction = (end - start).normalized;
+        Vector2 normal = new Vector2(-direction.y, direction.x) * halfWidth;
+        int index = vh.currentVertCount;
+        vh.AddVert(start - normal, color, Vector2.zero);
+        vh.AddVert(start + normal, color, Vector2.zero);
+        vh.AddVert(end + normal, color, Vector2.zero);
+        vh.AddVert(end - normal, color, Vector2.zero);
+        vh.AddTriangle(index, index + 1, index + 2);
+        vh.AddTriangle(index, index + 2, index + 3);
     }
 }

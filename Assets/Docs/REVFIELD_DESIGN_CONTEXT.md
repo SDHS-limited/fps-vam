@@ -32,7 +32,7 @@ REVFIELD는 PC/Steam 우선의 싱글플레이 고속 아레나 FPS다. 6면 중
 | Flux | 중력 연계 보상과 전술적 소비 | 강화 Pulse에 30 소비 |
 
 기존 블랙홀 수류탄은 Anchor와 별개의 이동형 일회성 도구다.
-기존 상시 밀치기와 신규 7초 Pulse의 관계, 피버와 Flux의 공존/대체 정책은 구체 구현 요청 때 정한다. 현재 기능을 문서만 보고 제거하거나 쿨다운을 강제로 넣지 않는다.
+기존 밀치기 키는 사용자 요청에 따라 7초 재사용 대기시간을 가진 Gravity Pulse로 확장했다. 피버 중 직접 피해는 기존 치명 배율을 적용하며 Flux 강화는 아직 구현하지 않았다.
 
 ## 초기 ArenaDirector 밸런스 가설
 
@@ -61,12 +61,19 @@ REVFIELD는 PC/Steam 우선의 싱글플레이 고속 아레나 FPS다. 6면 중
 현재 파일 기준으로 재사용 가능: `GravityPlayerController`, `EnemyGravity`, `EnemySpawner`, `DoubleMagnumShooter`, `Bullet`, `MagnumMuzzleFlash`, `HitMarkerUI`, `BlackHoleGrenade`, `ScoreManager`, `TimerUI`.
 
 - 중력 이동, 총구 플래시, 중앙 조준 발사, 히트마커, 기초 적 피격 반응, 생존 페이싱은 기반이 있다.
-- 현재 파일의 Enemy는 기존 색상 플래시와 플레이어 위치 기준 반응이다. 이전 채팅의 방향별 피격 확장 구현이 현재 파일에 존재한다고 가정하지 않는다. `EnemyImpactFeedback.cs`는 이번 확인 시 없었다.
-- ArenaDirector, ArenaData/WaveData, Gravity Pulse/Anchor, Flux, 충돌 처치 점수, KillContext는 이번 파일 검색에서 확인되지 않았다.
+- 사격 손맛 개선 후 Enemy는 탄환 방향 기준으로 짧게 밀리고 색상 플래시를 표시한다. 샷건의 다중 펠릿은 피해를 각각 적용하되 히트마커·이펙트·사운드를 짧은 간격으로 묶는다.
+- Gravity Pulse는 방향 충격파·Runner 밀림·Brute 저항·벽 충돌 피해까지 프로토타입으로 구현했다. ArenaDirector, ArenaData/WaveData, Anchor, Flux, 충돌 처치 보너스, KillContext는 아직 구현되지 않았다.
 - 현재 ScoreManager의 콤보 점수와 TimerUI의 시간 연장은 새 주력 모드의 점수/라운드 규칙과 구분해 이관해야 한다.
 - 플레이어 컨트롤러의 이동/중력/전투/능력 책임을 분리하고, 중력 영향 대상은 공통 계약으로 정리한다.
 - 데이터는 ScriptableObject로 편집 가능하게 한다. 충돌 피해는 상대 속도/중복 피해 보호를 검증하는 테스트가 필요하다.
 - 기존 성능 QA에서 관측한 D3D12 GPU 화면 표시 대기 문제는 별도 미해결 항목이다. 코드 최적화만으로 해결됐다고 간주하지 않는다.
+
+## 사격 손맛 구현 메모
+
+- Magnum/Shotgun/Uzi 발사음을 분리하고 발사율에 맞게 길이를 줄였다. 명중·처치 확인음도 별도 음원으로 연결했다.
+- 카메라의 무작위 위치 흔들림을 짧은 후퇴 반동으로 바꿨다. 팔/총기 모델 반동 코드와 씬의 반동값은 기존 설정을 유지한다.
+- 샷건과 Uzi 탄환도 카메라 중앙 목표점을 향한다. 총구 앞 장애물을 검사하고, 플레이어 자신을 탄환 충돌 검사에서 제외한다.
+- C# 빌드와 씬의 오디오/총구 화염 참조를 확인했다. 실제 Play Mode의 청감·화면 피로도와 적 피격 타이밍은 플레이 테스트로 조정해야 한다.
 
 ## 구현 순서와 범위
 

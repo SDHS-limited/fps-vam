@@ -219,8 +219,13 @@ public class EnemySpawner : MonoBehaviour
 
         // 생성
         GameObject enemy = Instantiate(prefab, spawnPos, Quaternion.identity);
-        if (useSurvivalPacing && enemy.TryGetComponent<Enemy>(out var behavior))
-            behavior.moveSpeed = Mathf.Lerp(openingMoveSpeed, finalMoveSpeed, PacingProgress);
+        if (enemy.TryGetComponent<Enemy>(out var behavior))
+        {
+            if (prefab == brutePrefab && brutePrefab != null)
+                behavior.isBrute = true;
+            if (useSurvivalPacing)
+                behavior.moveSpeed = Mathf.Lerp(openingMoveSpeed, finalMoveSpeed, PacingProgress);
+        }
         activeEnemies.Add(enemy);
 
         // 낙하 물리 적용 (Rigidbody가 있을 경우)

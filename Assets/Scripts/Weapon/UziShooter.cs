@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class UziShooter : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class UziShooter : MonoBehaviour
 
     [Header("── 총알 설정 ──")]
     public GameObject bulletPrefab;
+    public Camera aimCamera;
+    [Min(1f)] public float aimDistance = 300f;
     public float bulletSpeed = 100f;
     public float bulletDamage = 20f;
 
@@ -30,7 +33,10 @@ public class UziShooter : MonoBehaviour
 
     [Header("── 이펙트 ──")]
     public ParticleSystem muzzleFlash;
+    public MagnumMuzzleFlash muzzleFlashPrefab;
     public AudioClip shootSound;
+    public AudioMixerGroup sfxMixer;
+    [Range(0f, 1f)] public float shotVolume = 0.45f;
 
     [Header("── 오브젝트 풀 ──")]
     public int poolSize = 40;
@@ -41,15 +47,27 @@ public class UziShooter : MonoBehaviour
     private int poolIndex = 0;
 
     private AudioSource audioSource;
+    private MagnumMuzzleFlash flash;
 
     void Start()
     {
+        if (aimCamera == null) aimCamera = GetComponentInParent<Camera>();
+        if (aimCamera == null) aimCamera = Camera.main;
 
         audioSource = GetComponent<AudioSource>();
 
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+        audioSource.outputAudioMixerGroup = sfxMixer;
+        if (muzzleFlashPrefab != null)
+        {
+            flash = Instantiate(muzzleFlashPrefab);
+            flash.size *= 0.8f;
+            flash.duration = 0.065f;
         }
 
         InitPool();
@@ -87,13 +105,13 @@ public class UziShooter : MonoBehaviour
 
         SpawnBullet();
 
-        // 총구 이펙트
-        //muzzleFlash?.Play();
+        muzzleFlash?.Play();
+        flash?.Play(barrel);
 
         // 발사음
         if (shootSound != null)
         {
-            audioSource.PlayOneShot(shootSound);
+            audioSource.PlayOneShot(shootSound, shotVolume);
         }
 
         // 반동
@@ -103,6 +121,9 @@ public class UziShooter : MonoBehaviour
         cameraShake?.Shake(0.04f, 0.04f);
     }
 
+    void OnDisable() { flash?.Hide(); }
+    void OnDestroy() { if (flash != null) Destroy(flash.gameObject); }
+
     void SpawnBullet()
     {
         if (bulletPrefab == null || barrel == null)
@@ -110,8 +131,18 @@ public class UziShooter : MonoBehaviour
 
         GameObject bulletObj = GetBulletFromPool();
 
-        bulletObj.transform.position = barrel.position;
-        bulletObj.transform.rotation = barrel.rotation;
+        Vector3 spawnPosition = barrel.position;
+        Vector3 target = GetAimPoint();
+        if (aimCamera != null)
+        {
+            Vector3 toMuzzle = spawnPosition - aimCamera.transform.position;
+            if (TryAimHit(new Ray(aimCamera.transform.position, toMuzzle), toMuzzle.magnitude, out RaycastHit cover))
+                spawnPosition = cover.point - toMuzzle.normalized * 0.01f;
+        }
+        Vector3 direction = (target - spawnPosition).normalized;
+        if (direction.sqrMagnitude < 0.001f) direction = barrel.forward;
+        bulletObj.transform.position = spawnPosition;
+        bulletObj.transform.rotation = Quaternion.LookRotation(direction);
 
         bulletObj.SetActive(true);
 
@@ -120,11 +151,28 @@ public class UziShooter : MonoBehaviour
         if (bullet != null)
         {
             bullet.Init(
-                barrel.forward,
+                direction,
                 bulletSpeed,
-                GetComponentInParent<GravityPlayerController>()?.GetBulletDamage(bulletDamage) ?? bulletDamage
+                bulletDamage,
+                transform.root,
+                true
             );
         }
+    }
+
+    Vector3 GetAimPoint()
+    {
+        Ray ray = aimCamera != null
+            ? aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))
+            : new Ray(barrel.position, barrel.forward);
+        return TryAimHit(ray, aimDistance, out RaycastHit hit) ? hit.point : ray.GetPoint(aimDistance);
+    }
+
+    bool TryAimHit(Ray ray, float distance, out RaycastHit closest)
+    {
+        var bullet = bulletPrefab != null ? bulletPrefab.GetComponent<Bullet>() : null;
+        int mask = bullet != null ? bullet.hitMask.value : Physics.DefaultRaycastLayers;
+        return ShotRaycast.Closest(ray, distance, mask, transform.root, out closest);
     }
 
     // ─────────────────────────────

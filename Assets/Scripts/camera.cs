@@ -25,11 +25,13 @@ public class camera : MonoBehaviour
     void Update()
     {
         // ★ 설정 창(일시정지)이 열려있을 때는 시점 이동을 막음
-        if (Time.timeScale == 0f) return;
+        if (Time.timeScale == 0f || Cursor.lockState != CursorLockMode.Locked) return;
 
-        // 마우스 입력값 받기
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        // Mouse axes already report movement since the last frame. Keep the old
+        // 60 FPS sensitivity while making the response independent of frame rate.
+        const float sensitivityScale = 1f / 60f;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * sensitivityScale;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * sensitivityScale;
 
         // 1. 좌우 회전 (Yaw)
         playerBody.Rotate(Vector3.up * mouseX);

@@ -740,6 +740,8 @@ MonoBehaviour:
   recoilRight: {fileID: 196424195}
   cameraShake: {fileID: 823454078}
   bulletPrefab: {fileID: 469325102612236275, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
+  aimCamera: {fileID: 823454085}
+  aimDistance: 300
   bulletSpeed: 369.3
   bulletDamage: 15
   pelletCount: 7
@@ -747,7 +749,10 @@ MonoBehaviour:
   spreadBias: 2
   fireRate: 0.5
   muzzleFlash: {fileID: 0}
-  shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
+  shootSound: {fileID: 8300000, guid: b3ac94e896f748cdaf25b27f06d774ad, type: 3}
+  sfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  shotVolume: 0.85
   poolSize: 100
   inputBufferWindow: 0.15
 --- !u!1 &146354012
@@ -1025,6 +1030,119 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146811402}
   m_CullTransparentMesh: 1
+--- !u!1 &174098727
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 174098731}
+  - component: {fileID: 174098730}
+  - component: {fileID: 174098729}
+  - component: {fileID: 174098728}
+  m_Layer: 6
+  m_Name: PulseOcclusionRunner
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &174098728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174098727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d848828536c7d34eb62201c0ca3f34f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  maxHp: 100
+  moveSpeed: 4
+  attackRange: 2
+  stunDuration: 0.12
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  knockbackForce: 0.5
+  animator: {fileID: 0}
+  knockbackTime: 0.2
+  knockbackDamping: 8
+  isBrute: 0
+  brutePulseForceMultiplier: 0.25
+  brutePulseStunDuration: 0.35
+  pulseTravelDuration: 0.65
+  minimumWallImpactSpeed: 6
+  scoreValue: 10
+  scoreManager: {fileID: 0}
+  gravityPlayerController: {fileID: 0}
+--- !u!54 &174098729
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174098727}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!136 &174098730
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174098727}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 1.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &174098731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174098727}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.7493644, y: 8.239542, z: -3.478428}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &180200538
 GameObject:
   m_ObjectHideFlags: 0
@@ -9524,6 +9642,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a05756d0dbd9747bf256654a464b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraShake
+  maximumOffset: 0.065
+  verticalRatio: 0.2
 --- !u!114 &823454082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10223,6 +10343,10 @@ MonoBehaviour:
   hpText: {fileID: 1055780759}
   image: {fileID: 943229587}
   timerUI: {fileID: 823764540}
+  hitSound: {fileID: 8300000, guid: 6bc6a212fcb246ef9d0b6af5b38b94d0, type: 3}
+  killSound: {fileID: 8300000, guid: 9f70d18c247e4d47bdad0dc6cff6a3c7, type: 3}
+  combatSfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  combatFeedbackVolume: 0.5
   feverWaveText: {fileID: 2128388582}
   abilityMoveSpeedMultiplier: 1
   abilityDamageMultiplier: 1
@@ -10239,11 +10363,15 @@ MonoBehaviour:
   feverFadeInTime: 0.1
   feverFadeOutTime: 0.06
   feverFadeMaxAlpha: 0.85
-  pushRange: 10
-  pushForce: 100
-  pushBaseDamage: 15
+  pushRange: 8
+  pushRadius: 2.5
+  pushForce: 22
+  pushBaseDamage: 12
   pushCriticalMultiplier: 3
-  pushCooldown: 0
+  pushWallDamage: 180
+  pushCooldown: 7
+  pulseSound: {fileID: 8300000, guid: 379a861d04679264da0645c4768051b2, type: 3}
+  pulseSoundVolume: 0.7
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -10422,9 +10550,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GravityShiftMotor
   shiftKey: 101
   aimRange: 60
-  rotationSpeed: 500
+  rotationSpeed: 512
   inputCooldown: 0.3
   maximumShiftSpeed: 14
+  quarterTurnDuration: 0.18
+  halfTurnDuration: 0.28
+  launchSpeed: 12
+  maximumTravelSpeed: 18
+  shiftFovKick: 7
+  landingFovKick: 2
+  shiftSound: {fileID: 8300000, guid: 0e5af310a90d4dd4b23c38540358de81, type: 3}
+  landingSound: {fileID: 8300000, guid: 71c9b19d1ea64c7dac0463223ad28a83, type: 3}
+  soundVolume: 0.55
   surfaceMask:
     serializedVersion: 2
     m_Bits: 123
@@ -10681,6 +10818,119 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 900288977}
   m_CullTransparentMesh: 1
+--- !u!1 &938656465
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 938656469}
+  - component: {fileID: 938656468}
+  - component: {fileID: 938656467}
+  - component: {fileID: 938656466}
+  m_Layer: 6
+  m_Name: PulseTestBrute
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &938656466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938656465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d848828536c7d34eb62201c0ca3f34f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  maxHp: 100
+  moveSpeed: 4
+  attackRange: 2
+  stunDuration: 0.12
+  hitColor: {r: 1, g: 0, b: 0, a: 1}
+  knockbackForce: 0.5
+  animator: {fileID: 0}
+  knockbackTime: 0.2
+  knockbackDamping: 8
+  isBrute: 1
+  brutePulseForceMultiplier: 0.25
+  brutePulseStunDuration: 0.35
+  pulseTravelDuration: 0.65
+  minimumWallImpactSpeed: 6
+  scoreValue: 10
+  scoreManager: {fileID: 0}
+  gravityPlayerController: {fileID: 0}
+--- !u!54 &938656467
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938656465}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
+--- !u!136 &938656468
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938656465}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &938656469
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938656465}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.7421026, y: 8.280964, z: -1.9790175}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &943229585
 GameObject:
   m_ObjectHideFlags: 0
@@ -12092,6 +12342,7 @@ MonoBehaviour:
   fireRate: 0.14
   muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
   shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  shotVolume: 1
   poolSize: 30
   audioSource: {fileID: 1101412500}
 --- !u!1 &1157419864
@@ -14674,6 +14925,8 @@ MonoBehaviour:
   barrel: {fileID: 627616610}
   cameraShake: {fileID: 823454078}
   bulletPrefab: {fileID: 469325102612236275, guid: 762f986138cf9f24cad58c3d0450ee69, type: 3}
+  aimCamera: {fileID: 823454085}
+  aimDistance: 300
   bulletSpeed: 150
   bulletDamage: 20
   fireRate: 12
@@ -14681,7 +14934,10 @@ MonoBehaviour:
   reloadAnimator: {fileID: 1088855485}
   currentAmmo: 30
   muzzleFlash: {fileID: 0}
-  shootSound: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
+  muzzleFlashPrefab: {fileID: 5375081927500448208, guid: fd190f13983254c48b3ab610177c1883, type: 3}
+  shootSound: {fileID: 8300000, guid: 3bb1f873961d4f49a5d57db60a434b81, type: 3}
+  sfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
+  shotVolume: 0.45
   poolSize: 40
 --- !u!1 &1903873211
 GameObject:
@@ -14711,7 +14967,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -3229142078273068247, guid: c37baa0b14bbea84984f553219205d54, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: b8cc7d10ff403a6419743f077887a099, type: 3}
+  m_Resource: {fileID: 8300000, guid: 5989af1cc50f65944b7dc6d70bad82ed, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -15852,3 +16108,5 @@ SceneRoots:
   - {fileID: 1864903347}
   - {fileID: 1101412501}
   - {fileID: 605621444}
+  - {fileID: 938656469}
+  - {fileID: 174098731}

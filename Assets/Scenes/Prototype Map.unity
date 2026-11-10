@@ -5420,11 +5420,15 @@ MonoBehaviour:
   feverFadeInTime: 0.1
   feverFadeOutTime: 0.06
   feverFadeMaxAlpha: 0.85
-  pushRange: 10
-  pushForce: 100
-  pushBaseDamage: 15
+  pushRange: 8
+  pushRadius: 2.5
+  pushForce: 22
+  pushBaseDamage: 12
   pushCriticalMultiplier: 3
-  pushCooldown: 0
+  pushWallDamage: 180
+  pushCooldown: 7
+  pulseSound: {fileID: 8300000, guid: 379a861d04679264da0645c4768051b2, type: 3}
+  pulseSoundVolume: 0.7
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
