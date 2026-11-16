@@ -4058,9 +4058,8 @@ GameObject:
   - component: {fileID: 605621444}
   - component: {fileID: 605621443}
   - component: {fileID: 605621442}
-  - component: {fileID: 605621441}
-  - component: {fileID: 605621446}
-  - component: {fileID: 605621445}
+  - component: {fileID: 605621448}
+  - component: {fileID: 605621447}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -4068,27 +4067,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!65 &605621441
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 605621440}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &605621442
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4145,7 +4123,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 605621440}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &605621444
 Transform:
   m_ObjectHideFlags: 0
@@ -4154,14 +4132,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 605621440}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.55153, y: 7.85, z: -0.48264}
+  m_LocalRotation: {x: -0, y: -0, z: -0.41374588, w: 0.91039246}
+  m_LocalPosition: {x: 5.07, y: 7.91, z: -0.48264}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &605621445
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -48.881}
+--- !u!114 &605621447
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4170,37 +4148,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 605621440}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cefc8899d82e9d4d9f4da908be3023f, type: 3}
+  m_Script: {fileID: 11500000, guid: 01afd1214da1e3341aa2795b053e3cd3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbilityBoxItem
-  audioClip: {fileID: 8300000, guid: 7cf47ee1817182744a0f006f9f251444, type: 3}
---- !u!54 &605621446
-Rigidbody:
+  m_EditorClassIdentifier: Assembly-CSharp::GravityAnchor
+  currentMode: 1
+  effectRadius: 7.96
+  lifeTime: 10
+  pullForce: 35
+  stopDistance: 1.5
+  floatEnemiesOnPull: 1
+  pushSpeed: 18
+  pulseDirectDamage: 5
+  pulseWallDamage: 25
+  pulseInterval: 1
+  directionalStrengthMultiplier: 1.2
+--- !u!135 &605621448
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 605621440}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 7.96
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &627616609
 GameObject:
   m_ObjectHideFlags: 0
@@ -10493,7 +10475,6 @@ MonoBehaviour:
   stopDistance: 1.35
   strikeRange: 2.6
   obstacleCheckRadius: 0.27
-  leftLowerDuration: 0.1
   minimumWindupTime: 0.22
   raisedHoldDuration: 0.025
   slamDuration: 0.13
@@ -10503,12 +10484,14 @@ MonoBehaviour:
   wallDamage: 70
   launchSpeed: 22
   upwardLaunchBias: 0.12
-  leftLowerPosition: {x: 0, y: -0.1, z: 0}
-  leftLowerRotation: {x: 18, y: 0, z: 0}
-  rightRaisePosition: {x: -0.1, y: 0, z: 0.28}
-  rightRaiseRotation: {x: -32, y: 0, z: 0}
-  rightSlamPosition: {x: -0.06, y: -0.04, z: 0.12}
-  rightSlamRotation: {x: 12, y: 0, z: 0}
+  leftPullbackPosition: {x: -0.01, y: -0.01, z: -0.05}
+  leftPullbackRotation: {x: 6, y: -8, z: 0}
+  rightPullbackPosition: {x: 0.01, y: -0.01, z: -0.05}
+  rightPullbackRotation: {x: 6, y: 8, z: 0}
+  leftPushPosition: {x: 0.015, y: 0, z: 0.1}
+  leftPushRotation: {x: -8, y: 10, z: 0}
+  rightPushPosition: {x: -0.015, y: 0, z: 0.1}
+  rightPushRotation: {x: -8, y: -10, z: 0}
   useArmMotionLimits: 1
   maxArmPositionOffset: 0.4
   maxArmAngleOffset: 65
@@ -10519,6 +10502,14 @@ MonoBehaviour:
   rushClip: {fileID: 0}
   slamClip: {fileID: 0}
   hitClip: {fileID: 0}
+  impactPoseHold: 0.028
+  impactRecoilPosition: {x: 0, y: 0, z: -0.018}
+  impactRecoilRotation: {x: 5, y: 0, z: 0}
+  usePlayerHitMarker: 1
+  impactBassClip: {fileID: 0}
+  impactBassVolume: 0.45
+  impactShakeDuration: 0.09
+  impactShakeStrength: 0.12
   previewMotionWithoutTarget: 0
   logAttackFailures: 0
 --- !u!1 &895036292
