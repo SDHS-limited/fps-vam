@@ -1030,119 +1030,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146811402}
   m_CullTransparentMesh: 1
---- !u!1 &174098727
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 174098731}
-  - component: {fileID: 174098730}
-  - component: {fileID: 174098729}
-  - component: {fileID: 174098728}
-  m_Layer: 6
-  m_Name: PulseOcclusionRunner
-  m_TagString: Enemy
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &174098728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 174098727}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d848828536c7d34eb62201c0ca3f34f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  maxHp: 100
-  moveSpeed: 4
-  attackRange: 2
-  stunDuration: 0.12
-  hitColor: {r: 1, g: 0, b: 0, a: 1}
-  knockbackForce: 0.5
-  animator: {fileID: 0}
-  knockbackTime: 0.2
-  knockbackDamping: 8
-  isBrute: 0
-  brutePulseForceMultiplier: 0.25
-  brutePulseStunDuration: 0.35
-  pulseTravelDuration: 0.65
-  minimumWallImpactSpeed: 6
-  scoreValue: 10
-  scoreManager: {fileID: 0}
-  gravityPlayerController: {fileID: 0}
---- !u!54 &174098729
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 174098727}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
---- !u!136 &174098730
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 174098727}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.35
-  m_Height: 1.8
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &174098731
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 174098727}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.7493644, y: 8.239542, z: -3.478428}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &180200538
 GameObject:
   m_ObjectHideFlags: 0
@@ -10291,6 +10178,7 @@ GameObject:
   - component: {fileID: 883877291}
   - component: {fileID: 883877290}
   - component: {fileID: 883877289}
+  - component: {fileID: 883877298}
   - component: {fileID: 883877295}
   - component: {fileID: 883877296}
   - component: {fileID: 883877297}
@@ -10347,6 +10235,7 @@ MonoBehaviour:
   killSound: {fileID: 8300000, guid: 9f70d18c247e4d47bdad0dc6cff6a3c7, type: 3}
   combatSfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
   combatFeedbackVolume: 0.5
+  gravityBreaker: {fileID: 883877298}
   feverWaveText: {fileID: 2128388582}
   abilityMoveSpeedMultiplier: 1
   abilityDamageMultiplier: 1
@@ -10566,6 +10455,72 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 123
   showHUD: 1
+--- !u!114 &883877298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883877287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03fabd570a254d34fa55b4646f28a335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GravityBreaker
+  player: {fileID: 883877289}
+  playerCamera: {fileID: 823454085}
+  leftArmPivot: {fileID: 1342162152}
+  rightArmPivot: {fileID: 1258160521}
+  disableDuringAttack:
+  - {fileID: 1130835165}
+  - {fileID: 1903740794}
+  - {fileID: 115438566}
+  useKeyManagerPushBinding: 1
+  fallbackKey: 324
+  cooldown: 2
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  lockRange: 9
+  aimAssistRadius: 1.65
+  minAimDot: 0.65
+  maxSurfaceHeightDifference: 2.26
+  rushSpeed: 25
+  maxRushDuration: 0.26
+  stopDistance: 1.35
+  strikeRange: 2.6
+  obstacleCheckRadius: 0.27
+  leftLowerDuration: 0.1
+  minimumWindupTime: 0.22
+  raisedHoldDuration: 0.025
+  slamDuration: 0.13
+  hitTimeRatio: 0.85
+  recoveryDuration: 0.24
+  directDamage: 50
+  wallDamage: 70
+  launchSpeed: 22
+  upwardLaunchBias: 0.12
+  leftLowerPosition: {x: 0, y: -0.1, z: 0}
+  leftLowerRotation: {x: 18, y: 0, z: 0}
+  rightRaisePosition: {x: -0.1, y: 0, z: 0.28}
+  rightRaiseRotation: {x: -32, y: 0, z: 0}
+  rightSlamPosition: {x: -0.06, y: -0.04, z: 0.12}
+  rightSlamRotation: {x: 12, y: 0, z: 0}
+  useArmMotionLimits: 1
+  maxArmPositionOffset: 0.4
+  maxArmAngleOffset: 65
+  rushFovOffset: 13
+  impactFovOffset: -5
+  impactVfx: {fileID: 0}
+  audioSource: {fileID: 1101412500}
+  rushClip: {fileID: 0}
+  slamClip: {fileID: 0}
+  hitClip: {fileID: 0}
+  previewMotionWithoutTarget: 0
+  logAttackFailures: 0
 --- !u!1 &895036292
 GameObject:
   m_ObjectHideFlags: 0
@@ -10818,119 +10773,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 900288977}
   m_CullTransparentMesh: 1
---- !u!1 &938656465
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 938656469}
-  - component: {fileID: 938656468}
-  - component: {fileID: 938656467}
-  - component: {fileID: 938656466}
-  m_Layer: 6
-  m_Name: PulseTestBrute
-  m_TagString: Enemy
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &938656466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 938656465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d848828536c7d34eb62201c0ca3f34f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  maxHp: 100
-  moveSpeed: 4
-  attackRange: 2
-  stunDuration: 0.12
-  hitColor: {r: 1, g: 0, b: 0, a: 1}
-  knockbackForce: 0.5
-  animator: {fileID: 0}
-  knockbackTime: 0.2
-  knockbackDamping: 8
-  isBrute: 1
-  brutePulseForceMultiplier: 0.25
-  brutePulseStunDuration: 0.35
-  pulseTravelDuration: 0.65
-  minimumWallImpactSpeed: 6
-  scoreValue: 10
-  scoreManager: {fileID: 0}
-  gravityPlayerController: {fileID: 0}
---- !u!54 &938656467
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 938656465}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 112
-  m_CollisionDetection: 0
---- !u!136 &938656468
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 938656465}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &938656469
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 938656465}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.7421026, y: 8.280964, z: -1.9790175}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &943229585
 GameObject:
   m_ObjectHideFlags: 0
@@ -14370,6 +14212,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 811475063}
     - target: {fileID: 108060346318785623, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+      propertyPath: knockbackForce
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 108060346318785623, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
       propertyPath: gravityPlayerController
       value: 
       objectReference: {fileID: 883877289}
@@ -16108,5 +15954,3 @@ SceneRoots:
   - {fileID: 1864903347}
   - {fileID: 1101412501}
   - {fileID: 605621444}
-  - {fileID: 938656469}
-  - {fileID: 174098731}

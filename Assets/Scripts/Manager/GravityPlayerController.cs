@@ -79,6 +79,10 @@ public class GravityPlayerController : MonoBehaviour
     private float nextHitSoundAt;
     private float nextKillSoundAt;
 
+    [Header("Gravity Breaker")]
+    public GravityBreaker gravityBreaker;
+    
+
     public void ShowHitMarker(bool lethal)
     {
         if (hitMarker == null || !hitMarker.Show(lethal)) return;
@@ -150,7 +154,7 @@ public class GravityPlayerController : MonoBehaviour
     public LayerMask enemyLayer;
     private readonly Collider[] pulseTargets = new Collider[64];
     private readonly HashSet<Enemy> pulseHitEnemies = new HashSet<Enemy>();
-
+    
     private bool isPouncing;
     private bool hasHitEnemy;
 
@@ -197,6 +201,7 @@ public class GravityPlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
         shiftMotor = GetComponent<GravityShiftMotor>();
+        if (gravityBreaker == null) gravityBreaker = GetComponent<GravityBreaker>();
 
         if (image != null) image.gameObject.SetActive(false);
         if (audioSource != null && audioSource.isActiveAndEnabled) audioSource.Play();
@@ -255,22 +260,39 @@ public class GravityPlayerController : MonoBehaviour
 
     private void Update()
     {
+
         if (isDie) return;
         UpdateHappinessUI();
+
+        if (playerCam != null)
+        {
+            float breakerFOV =
+                gravityBreaker != null
+                ? gravityBreaker.FovOffset
+                : 0f;
+
+            playerCam.fieldOfView = Mathf.Lerp(
+                playerCam.fieldOfView,
+                targetFOV + gravityShiftFovKick + breakerFOV,
+                Time.deltaTime * fovLerpSpeed
+            );
+        }
+        
 
         // 능력 선택 UI 등으로 게임이 정지했으면 플레이어 입력도 정지
         if (Time.timeScale == 0f) return;
         if (KeyManager.instance == null) return;
 
-        if (Input.GetKeyDown(KeyManager.instance.keys["Jump"]) && isGrounded)
+        if (Input.GetKeyDown(KeyManager.instance.keys["Jump"]) && isGrounded &&
+            (gravityBreaker == null || !gravityBreaker.BlocksMovement))
             jumpQueued = true;
 
         if (Input.GetKeyDown(KeyManager.instance.keys["Dash"]) && canDash)
             Dash();
 
         // 피버 여부와 관계없이 같은 키로 밀치기를 사용합니다.
-        if (Input.GetKeyDown(KeyManager.instance.keys["Push"]))
-            TryPushAttack();
+        //if (Input.GetKeyDown(KeyManager.instance.keys["Push"]))
+            //TryPushAttack();
 
         if (Input.GetKeyDown(KeyCode.F1))
             happiness = maxHappiness;
@@ -306,9 +328,7 @@ public class GravityPlayerController : MonoBehaviour
         if (flashTimer > 0f) flashTimer -= Time.deltaTime;
 
         gravityShiftFovKick = Mathf.MoveTowards(gravityShiftFovKick, 0f, Time.deltaTime * 24f);
-        if (playerCam != null)
-            playerCam.fieldOfView = Mathf.Lerp(
-                playerCam.fieldOfView, targetFOV + gravityShiftFovKick, Time.deltaTime * fovLerpSpeed);
+
 
         UpdateFever();
     }
@@ -328,6 +348,7 @@ public class GravityPlayerController : MonoBehaviour
         Move();
         if (manualGravity) shiftMotor.LimitTravelSpeed();
 
+        if (gravityBreaker != null && gravityBreaker.BlocksMovement) jumpQueued = false;
         if (jumpQueued && isGrounded)
         {
             Jump();
@@ -615,7 +636,8 @@ public class GravityPlayerController : MonoBehaviour
 
     private void Dash()
     {
-        if (isPouncing || cameraTransform == null) return;
+        if (isPouncing || cameraTransform == null ||
+            (gravityBreaker != null && gravityBreaker.BlocksMovement)) return;
         canDash = false;
 
         Vector3 forward = Vector3.ProjectOnPlane(
@@ -668,8 +690,14 @@ public class GravityPlayerController : MonoBehaviour
 
     private void Move()
     {
-        if (isPouncing || cameraTransform == null || KeyManager.instance == null)
-            return;
+
+    if (isPouncing ||
+        cameraTransform == null ||
+        KeyManager.instance == null ||
+        (gravityBreaker != null && gravityBreaker.IsRushing))
+    {
+        return;
+    }
 
         float h = 0f;
         if (Input.GetKey(KeyManager.instance.keys["Right"])) h += 1f;
