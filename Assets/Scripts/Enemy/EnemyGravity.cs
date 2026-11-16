@@ -1,14 +1,8 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
-/// 적 전용 커스텀 중력
-/// 큐브 6면 외부 표면 감지 → 가장 가까운 면에 붙어 걸음
-/// 개선 사항:
-///   1. 가장 가까운 면 우선순위 선택 (거리 기반 정렬)
-///   2. 중력 방향 급격한 전환 방지 (Slerp 보간)
-///   3. 스폰홀(구멍) 추락 방지 레이어 마스크
-///   4. 표면에서 떨어진 경우 마지막 중력 방향 유지
-///   5. 이동 스크립트와 연동하는 GravityDir 프로퍼티
+/// 적 전용 커스텀 중력 (Gravity Anchor + 피격 타격감 연출 통합 버전)
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyGravity : MonoBehaviour
@@ -37,17 +31,34 @@ public class EnemyGravity : MonoBehaviour
 
     [Header("스폰 설정")]
     [Tooltip("스폰 직후 표면 감지를 무시하고 강제로 아래로 떨어지게 할 시간(초)")]
-    public float spawnDropDelay = 0.5f; // 이 시간 동안은 천장에 붙지 않음
+    public float spawnDropDelay = 0.5f;
     private float spawnTimer = 0f;
+
+    [Header("피격 타격감 연출 (Hit Tilt)")]
+    [Tooltip("기울어질 적의 외형(Mesh) 자식 오브젝트. 비워두면 루트에서 자동 탐색")]
+    public Transform visualModel;
+    [Tooltip("피격 시 휘어지는 Z축 각도")]
+    public float hitTiltAngleZ = -25f;
+    [Tooltip("원래 자세로 복구되는 속도")]
+    public float hitTiltRecoverSpeed = 15f;
 
     // ── 내부 상태
     Rigidbody rb;
-    Vector3 currentGravityDir = Vector3.down;   // 실제 적용 중인 보간된 중력 방향
-    Vector3 targetGravityDir  = Vector3.down;   // 감지된 목표 중력 방향
+    Vector3 currentGravityDir = Vector3.down;
+    Vector3 targetGravityDir  = Vector3.down;
     float lostSurfaceTimer = 0f;
     bool onSurface = false;
 
-    // 6방향 — 고정 배열로 GC 없이 재사용
+    // ── 피격 연출용 내부 변수
+    private float currentTiltZ = 0f;
+    private Quaternion initialVisualLocalRot;
+
+    // ── Gravity Anchor 제어용 상태 변수
+    private bool isAnchorOverridden = false;
+    private Vector3 anchorGravityDir;
+    private float anchorGravityMultiplier = 1f;
+    private float breakerOverrideTimer = 0f;
+
     static readonly Vector3[] SixDirs =
     {
         Vector3.down,
@@ -59,43 +70,110 @@ public class EnemyGravity : MonoBehaviour
     };
 
     // 외부 참조용 프로퍼티
-    /// <summary>현재 보간된 중력 방향 (이동 스크립트에서 활용)</summary>
     public Vector3 GravityDir => currentGravityDir;
-    /// <summary>현재 표면에 붙어 있는지 여부</summary>
     public bool IsOnSurface => onSurface;
+    public Rigidbody Rb => rb;
+    public bool IsAnchorOverridden => isAnchorOverridden;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.freezeRotation = true;
+
+        // visualModel이 인스펙터에서 할당되지 않았다면 첫 번째 자식 오브젝트를 자동 할당
+        if (visualModel == null && transform.childCount > 0)
+        {
+            visualModel = transform.GetChild(0);
+        }
+
+        if (visualModel != null)
+        {
+            initialVisualLocalRot = visualModel.localRotation;
+        }
     }
 
     void FixedUpdate()
     {
-        // 스폰 직후 일정 시간 동안은 표면 감지를 건너뛰고 강제 하강
+        // 1. Gravity Breaker 타격 직후라면 모든 앵커 효과 일시 무시
+        if (breakerOverrideTimer > 0f)
+        {
+            breakerOverrideTimer -= Time.fixedDeltaTime;
+            DetectSurface();
+            ApplyGravity();
+            AlignToSurface();
+            return;
+        }
+
+        // 2. 스폰 직후 강제 하강
         if (spawnTimer < spawnDropDelay)
         {
             spawnTimer += Time.fixedDeltaTime;
-            
-            // 목표 중력을 무조건 월드 아래쪽으로 고정
             targetGravityDir = Vector3.down;
-            
-            // 중력 방향 보간 (부드러운 전환)
             currentGravityDir = Vector3.Slerp(
                 currentGravityDir,
                 targetGravityDir,
                 Time.fixedDeltaTime * gravityTurnSpeed
             ).normalized;
         }
+        // 3. 앵커에 의해 중력이 강제 제어 중일 때
+        else if (isAnchorOverridden)
+        {
+            onSurface = false;
+            targetGravityDir = anchorGravityDir;
+            currentGravityDir = Vector3.Slerp(
+                currentGravityDir,
+                targetGravityDir,
+                Time.fixedDeltaTime * gravityTurnSpeed
+            ).normalized;
+        }
+        // 4. 평소 상태: 6방향 표면 감지
         else
         {
-            // 스폰 딜레이가 끝나면 정상적으로 6방향 표면 감지 시작
             DetectSurface();
         }
 
         ApplyGravity();
         AlignToSurface();
+    }
+
+    void Update()
+    {
+        // 피격 기울기 복구 애니메이션 처리
+        UpdateHitTilt();
+    }
+
+    // ────────────────────────────────────────
+    //  피격 타격감 연출 로직
+    // ────────────────────────────────────────
+    void UpdateHitTilt()
+    {
+        if (visualModel == null) return;
+
+        if (Mathf.Abs(currentTiltZ) > 0.01f)
+        {
+            // 0도로 부드럽게 탄성 복구
+            currentTiltZ = Mathf.Lerp(currentTiltZ, 0f, Time.deltaTime * hitTiltRecoverSpeed);
+            visualModel.localRotation = initialVisualLocalRot * Quaternion.Euler(0f, 0f, currentTiltZ);
+        }
+        else if (currentTiltZ != 0f)
+        {
+            currentTiltZ = 0f;
+            visualModel.localRotation = initialVisualLocalRot;
+        }
+    }
+
+    /// <summary>
+    /// 적이 데미지를 입을 때 호출하세요! (예: TakeDamage() 내부에서 호출)
+    /// 순간적으로 rotation.z가 -25도 꺾였다가 복구됩니다.
+    /// </summary>
+    public void PlayHitTilt()
+    {
+        currentTiltZ = hitTiltAngleZ; // 기본값 -25f
+        if (visualModel != null)
+        {
+            visualModel.localRotation = initialVisualLocalRot * Quaternion.Euler(0f, 0f, currentTiltZ);
+        }
     }
 
     // ────────────────────────────────────────
@@ -120,7 +198,6 @@ public class EnemyGravity : MonoBehaviour
             if (!hit.collider.CompareTag(groundTag))
                 continue;
 
-            // 가장 가까운 면 선택
             if (hit.distance < closestDist)
             {
                 closestDist = hit.distance;
@@ -131,24 +208,20 @@ public class EnemyGravity : MonoBehaviour
 
         if (found)
         {
-            // 감지 성공 — 목표 중력 방향 갱신
             targetGravityDir  = -bestNormal;
             lostSurfaceTimer  = 0f;
             onSurface         = true;
         }
         else
         {
-            // 감지 실패 — 타임아웃까지 마지막 방향 유지
             lostSurfaceTimer += Time.fixedDeltaTime;
             if (lostSurfaceTimer >= lostSurfaceTimeout)
             {
                 onSurface = false;
-                // 완전히 이탈 시 가장 가까운 큐브 중심 방향으로 fallback
                 targetGravityDir = GetFallbackGravity();
             }
         }
 
-        // 중력 방향 부드럽게 보간
         currentGravityDir = Vector3.Slerp(
             currentGravityDir,
             targetGravityDir,
@@ -161,7 +234,8 @@ public class EnemyGravity : MonoBehaviour
     // ────────────────────────────────────────
     void ApplyGravity()
     {
-        rb.AddForce(currentGravityDir * gravityStrength, ForceMode.Acceleration);
+        float strength = isAnchorOverridden ? gravityStrength * anchorGravityMultiplier : gravityStrength;
+        rb.AddForce(currentGravityDir * strength, ForceMode.Acceleration);
     }
 
     // ────────────────────────────────────────
@@ -169,7 +243,8 @@ public class EnemyGravity : MonoBehaviour
     // ────────────────────────────────────────
     void AlignToSurface()
     {
-        // 현재 up 벡터를 중력 반대 방향으로 맞춤
+        if (currentGravityDir.sqrMagnitude < 0.001f) return;
+
         Quaternion targetRot = Quaternion.FromToRotation(
             transform.up,
             -currentGravityDir
@@ -184,24 +259,20 @@ public class EnemyGravity : MonoBehaviour
 
     // ────────────────────────────────────────
     //  4. Fallback — 표면에서 완전히 이탈 시
-    //     스포너(부모 큐브) 중심 방향으로 당김
     // ────────────────────────────────────────
     Vector3 GetFallbackGravity()
     {
-        // 씬에 CubeCenter 태그 오브젝트가 있으면 그 방향으로
         GameObject cubeCenter = GameObject.FindWithTag("CubeCenter");
         if (cubeCenter != null)
         {
             Vector3 dir = (cubeCenter.transform.position - transform.position).normalized;
             return dir;
         }
-        // 없으면 월드 다운 유지
         return Vector3.down;
     }
 
     // ────────────────────────────────────────
     //  5. 외부에서 중력 방향 강제 지정
-    //     (게임 이벤트로 중력 전환 트리거할 때 활용)
     // ────────────────────────────────────────
     public void ForceGravityDirection(Vector3 dir)
     {
@@ -209,20 +280,54 @@ public class EnemyGravity : MonoBehaviour
     }
 
     // ────────────────────────────────────────
+    //  6. Gravity Anchor 연동 전용 메서드
+    // ────────────────────────────────────────
+    public void SetAnchorDirectionalGravity(Vector3 dir, float strengthMultiplier = 1.2f)
+    {
+        isAnchorOverridden = true;
+        anchorGravityDir = dir.normalized;
+        anchorGravityMultiplier = strengthMultiplier;
+    }
+
+    public void SetAnchorZeroGravity(bool enableZeroG)
+    {
+        if (enableZeroG)
+        {
+            isAnchorOverridden = true;
+            anchorGravityDir = Vector3.zero;
+            anchorGravityMultiplier = 0f;
+        }
+        else
+        {
+            ClearAnchorOverride();
+        }
+    }
+
+    public void ClearAnchorOverride()
+    {
+        isAnchorOverridden = false;
+        anchorGravityMultiplier = 1f;
+        lostSurfaceTimer = 0f;
+    }
+
+    public void BreakAnchorControl(float duration = 1.0f)
+    {
+        breakerOverrideTimer = duration;
+        ClearAnchorOverride();
+    }
+
+    // ────────────────────────────────────────
     //  에디터 디버그 기즈모
     // ────────────────────────────────────────
     void OnDrawGizmosSelected()
     {
-        // 중력 방향 (빨간 화살표)
-        Gizmos.color = Color.red;
+        Gizmos.color = isAnchorOverridden ? Color.cyan : Color.red;
         Gizmos.DrawRay(transform.position, currentGravityDir * 1.5f);
 
-        // 감지 레이 6방향 (노란색)
         Gizmos.color = new Color(1f, 1f, 0f, 0.4f);
         foreach (var dir in SixDirs)
             Gizmos.DrawRay(transform.position, dir * detectRange);
 
-        // 표면 감지 상태
         Gizmos.color = onSurface ? Color.green : Color.red;
         Gizmos.DrawWireSphere(transform.position, 0.15f);
     }

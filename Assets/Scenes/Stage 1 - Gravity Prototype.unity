@@ -4309,6 +4309,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d848828536c7d34eb62201c0ca3f34f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+--- !u!4 &702435383 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7734795126411487794, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+  m_PrefabInstance: {fileID: 1864903347}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &738760436
 GameObject:
   m_ObjectHideFlags: 0
@@ -14210,6 +14215,10 @@ PrefabInstance:
       propertyPath: gravityPlayerController
       value: 
       objectReference: {fileID: 883877289}
+    - target: {fileID: 2963609021934845608, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+      propertyPath: visualModel
+      value: 
+      objectReference: {fileID: 702435383}
     - target: {fileID: 3128183325454233583, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
       propertyPath: m_Name
       value: Capsule

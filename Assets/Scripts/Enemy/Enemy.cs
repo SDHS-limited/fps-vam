@@ -107,7 +107,12 @@ public class Enemy : MonoBehaviour
             knockbackTimer -= Time.deltaTime;
             return;
         }
+
         if (stunned || dying || player == null) return;
+
+        // [추가] Gravity Anchor에 의해 공중에 떴거나 중력 조작 중일 때는 허공 이동/공격 제한
+        if (gravity != null && (gravity.IsAnchorOverridden || !gravity.IsOnSurface))
+            return;
 
         if (Vector3.Distance(transform.position, player.position) > attackRange)
             MoveToPlayer();
@@ -140,10 +145,17 @@ public class Enemy : MonoBehaviour
         ApplyDamage(directDamage, direction);
         if (dying) return true;
 
+        // [추가] Gravity Breaker / 펄스 발동 시 앵커의 흡입/중력 제어를 일시 해제해 시원하게 날아가도록 처리
+        float travelTime = isBrute ? Mathf.Min(0.35f, pulseTravelDuration) : pulseTravelDuration;
+        if (gravity != null)
+        {
+            gravity.BreakAnchorControl(travelTime);
+        }
+
         pulseDirection = direction.normalized;
         pulseLaunchSpeed = speed * (isBrute ? brutePulseForceMultiplier : 1f);
         pulseWallDamage = wallDamage * (isBrute ? 0.4f : 1f);
-        pulseEndsAt = Time.time + (isBrute ? Mathf.Min(0.35f, pulseTravelDuration) : pulseTravelDuration);
+        pulseEndsAt = Time.time + travelTime;
         pulseWallHit = false;
         pulseFlying = true;
         knockbackTimer = 0f;
@@ -201,7 +213,6 @@ public class Enemy : MonoBehaviour
         // Attack behavior is defined separately from hit feedback.
     }
 
-    // Returns whether this pellet should spawn an impact effect. Damage always applies.
     public bool TakeBulletHit(float damage, Vector3 shotDirection)
     {
         if (dying || damage <= 0f) return false;
@@ -235,35 +246,41 @@ public class Enemy : MonoBehaviour
 
     void React(Vector3 hitDirection)
     {
+        // [추가] 데미지를 입을 때마다 외형이 Z축 -25도로 휘어지는 타격감 연출 실행
+        if (gravity != null)
+        {
+            gravity.PlayHitTilt();
+        }
+
         if (Time.time < nextReactionAt) return;
-        nextReactionAt = Time.time + 0.05f;
-        stunTimer = stunDuration;
+        nextReactionAt = Time.time + 0.08f;
+
+        stunTimer = Mathf.Max(stunTimer, stunDuration);
         SetHitColor(hitColor);
         showingHitColor = true;
-        if (animator != null) animator.SetTrigger("Hit");
 
-        Vector3 grav = gravity != null ? gravity.GravityDir : Vector3.down;
-        Vector3 direction = Vector3.ProjectOnPlane(hitDirection, grav);
-        if (direction.sqrMagnitude < 0.0001f && player != null)
-            direction = Vector3.ProjectOnPlane(transform.position - player.position, grav);
-        if (direction.sqrMagnitude < 0.0001f) return;
+        if (animator != null)
+            animator.SetTrigger("Hit");
 
-        float speed = knockbackForce / Mathf.Max(0.05f, knockbackTime);
-        if (knockbackTimer <= 0f || knockbackVelocity.sqrMagnitude < speed * speed)
-            Knockback(direction, speed);
+        if (hitDirection.sqrMagnitude > 0.001f && !isBrute)
+        {
+            Vector3 grav = gravity != null ? gravity.GravityDir : Vector3.down;
+            Vector3 flatDir = Vector3.ProjectOnPlane(hitDirection, grav).normalized;
+            Knockback(flatDir, knockbackForce);
+        }
     }
 
     void Die()
     {
+        if (dying) return;
         dying = true;
-        if (scoreManager == null) scoreManager = FindObjectOfType<ScoreManager>();
         if (scoreManager != null) scoreManager.AddScore(scoreValue);
         Destroy(gameObject);
     }
 
     void SetHitColor(Color color)
     {
-        if (enemyRenderer == null || hitProperties == null) return;
+        if (enemyRenderer == null || hitProperties == null || colorProperty == 0) return;
         enemyRenderer.GetPropertyBlock(hitProperties);
         hitProperties.SetColor(colorProperty, color);
         enemyRenderer.SetPropertyBlock(hitProperties);
