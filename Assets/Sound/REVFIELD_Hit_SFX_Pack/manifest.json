@@ -1,0 +1,189 @@
+{
+  "sample_rate": 48000,
+  "bit_depth": 16,
+  "channels": 1,
+  "sounds": [
+    {
+      "file": "Hit_Normal_01.wav",
+      "duration_s": 0.185,
+      "style": "normal",
+      "description": "연속 사격용 짧은 육중한 피격음",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -16.5
+    },
+    {
+      "file": "Hit_Normal_02.wav",
+      "duration_s": 0.204,
+      "style": "normal",
+      "description": "빠르고 날카로운 명중 확인음",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -17.5
+    },
+    {
+      "file": "Hit_Normal_03.wav",
+      "duration_s": 0.232,
+      "style": "normal",
+      "description": "연속 사격용 짧은 육중한 피격음",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -15.4
+    },
+    {
+      "file": "Hit_Armor_01.wav",
+      "duration_s": 0.285,
+      "style": "armor",
+      "description": "단단한 장갑판에 총알이 부딪히는 쇳소리",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -13.3
+    },
+    {
+      "file": "Hit_Armor_02.wav",
+      "duration_s": 0.34,
+      "style": "armor",
+      "description": "튕겨 나가는 리코셰와 금속 잔향",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -12.8
+    },
+    {
+      "file": "Hit_Shield_01.wav",
+      "duration_s": 0.3,
+      "style": "shield",
+      "description": "에너지 실드 피격음",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -13.4
+    },
+    {
+      "file": "Hit_Shield_02.wav",
+      "duration_s": 0.47,
+      "style": "shield",
+      "description": "실드가 깨지는 큰 방전음",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -13.6
+    },
+    {
+      "file": "Hit_Critical_01.wav",
+      "duration_s": 0.32,
+      "style": "critical",
+      "description": "치명타 명중: 날카로운 고음과 둔중한 타격",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -14.1
+    },
+    {
+      "file": "Hit_Critical_02.wav",
+      "duration_s": 0.39,
+      "style": "critical",
+      "description": "치명타 명중: 아케이드 보상감이 있는 울림",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -14.7
+    },
+    {
+      "file": "Hit_Heavy_01.wav",
+      "duration_s": 0.35,
+      "style": "heavy",
+      "description": "매그넘 탄착용 묵직한 강타",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -11.9
+    },
+    {
+      "file": "Hit_Heavy_02.wav",
+      "duration_s": 0.44,
+      "style": "heavy",
+      "description": "샷건 다중 펠릿용 퍼지는 강타",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -14.2
+    },
+    {
+      "file": "Hit_Kill_01.wav",
+      "duration_s": 0.43,
+      "style": "kill",
+      "description": "적 처치 확정: 강한 저역 충격과 짧은 마무리",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -11.9
+    },
+    {
+      "file": "Hit_Kill_02.wav",
+      "duration_s": 0.53,
+      "style": "kill",
+      "description": "적 처치 확정: SF 잔향 버전",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -13.3
+    },
+    {
+      "file": "Hit_Fever_01.wav",
+      "duration_s": 0.29,
+      "style": "fever",
+      "description": "피버 상태에서 더 빛나는 타격감",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -15.1
+    },
+    {
+      "file": "Hit_Fever_02.wav",
+      "duration_s": 0.36,
+      "style": "fever",
+      "description": "피버 상태에서 강조된 크리티컬",
+      "peak_dbfs": -1.5,
+      "rms_dbfs": -15.0
+    }
+  ],
+  "preview_cues": [
+    {
+      "time_s": 0.25,
+      "file": "Hit_Normal_01.wav"
+    },
+    {
+      "time_s": 0.85,
+      "file": "Hit_Normal_02.wav"
+    },
+    {
+      "time_s": 1.48,
+      "file": "Hit_Normal_03.wav"
+    },
+    {
+      "time_s": 2.13,
+      "file": "Hit_Armor_01.wav"
+    },
+    {
+      "time_s": 2.84,
+      "file": "Hit_Armor_02.wav"
+    },
+    {
+      "time_s": 3.6,
+      "file": "Hit_Shield_01.wav"
+    },
+    {
+      "time_s": 4.32,
+      "file": "Hit_Shield_02.wav"
+    },
+    {
+      "time_s": 5.21,
+      "file": "Hit_Critical_01.wav"
+    },
+    {
+      "time_s": 5.95,
+      "file": "Hit_Critical_02.wav"
+    },
+    {
+      "time_s": 6.76,
+      "file": "Hit_Heavy_01.wav"
+    },
+    {
+      "time_s": 7.53,
+      "file": "Hit_Heavy_02.wav"
+    },
+    {
+      "time_s": 8.39,
+      "file": "Hit_Kill_01.wav"
+    },
+    {
+      "time_s": 9.24,
+      "file": "Hit_Kill_02.wav"
+    },
+    {
+      "time_s": 10.19,
+      "file": "Hit_Fever_01.wav"
+    },
+    {
+      "time_s": 10.9,
+      "file": "Hit_Fever_02.wav"
+    }
+  ]
+}

@@ -4314,6 +4314,43 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7734795126411487794, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
   m_PrefabInstance: {fileID: 1864903347}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &702435389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702435375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec12f4879b115ad4a9c5fff4c756d92f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GravityGrabEnemyReceiver
+  onDamage:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 702435377}
+        m_TargetAssemblyTypeName: Enemy, Assembly-CSharp
+        m_MethodName: TakeDamage
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 30
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onImpact:
+    m_PersistentCalls:
+      m_Calls: []
+  enableWallCrush: 1
+  wallLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  wallCrushDamage: 20
+  minimumWallSpeed: 4
+  crushWindow: 0.8
 --- !u!1 &738760436
 GameObject:
   m_ObjectHideFlags: 0
@@ -9331,7 +9368,6 @@ GameObject:
   - component: {fileID: 811475069}
   - component: {fileID: 811475070}
   - component: {fileID: 811475071}
-  - component: {fileID: 811475072}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -9387,9 +9423,9 @@ MonoBehaviour:
   brutePrefab: {fileID: 0}
   spawnHole: {fileID: 1823013139}
   spawnRadius: 2
-  initialInterval: 3.5
+  initialInterval: 2.69
   minInterval: 1.4
-  difficultyTickInterval: 9.46
+  difficultyTickInterval: 8.52
   intervalDecreaseRate: 0.076
   bruteChance: 0
   bruteChanceIncrease: 0.02
@@ -9438,34 +9474,6 @@ MonoBehaviour:
   - {fileID: 1823013139}
   spawnInterval: 40
   maxItemsOnMap: 4
---- !u!114 &811475072
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 811475062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 503fa2efe650a3a4c970ead64da363fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AbilitySelectionUI
-  abilityPanel: {fileID: 1211258212}
-  slots:
-  - button: {fileID: 202807984}
-    BuffdescriptionText: {fileID: 1878755958}
-    NuffdescriptionText: {fileID: 1511795850}
-  - button: {fileID: 261140600}
-    BuffdescriptionText: {fileID: 522831127}
-    NuffdescriptionText: {fileID: 1387565342}
-  - button: {fileID: 400435571}
-    BuffdescriptionText: {fileID: 961577679}
-    NuffdescriptionText: {fileID: 1213745722}
-  abilities:
-  - {fileID: 11400000, guid: 4b288cabbc636bc44917c52b6d57d3e1, type: 2}
-  - {fileID: 11400000, guid: 3e41ec27cc04cf048851f7a7623e8a16, type: 2}
-  - {fileID: 11400000, guid: b312f800d16c2344fbd1c6bd20a7d036, type: 2}
-  pauseGame: 1
 --- !u!1 &823454076
 GameObject:
   m_ObjectHideFlags: 0
@@ -10165,6 +10173,7 @@ GameObject:
   - component: {fileID: 883877291}
   - component: {fileID: 883877290}
   - component: {fileID: 883877289}
+  - component: {fileID: 883877299}
   - component: {fileID: 883877298}
   - component: {fileID: 883877295}
   - component: {fileID: 883877296}
@@ -10218,8 +10227,8 @@ MonoBehaviour:
   hpText: {fileID: 1055780759}
   image: {fileID: 943229587}
   timerUI: {fileID: 823764540}
-  hitSound: {fileID: 8300000, guid: 6bc6a212fcb246ef9d0b6af5b38b94d0, type: 3}
-  killSound: {fileID: 8300000, guid: 9f70d18c247e4d47bdad0dc6cff6a3c7, type: 3}
+  hitSound: {fileID: 8300000, guid: f17f0f32b2d56ae4894667c36279202b, type: 3}
+  killSound: {fileID: 8300000, guid: 2a5abbdeb834e6a4ebcaa71bc2d3b6c6, type: 3}
   combatSfxMixer: {fileID: 7466770737874436445, guid: c37baa0b14bbea84984f553219205d54, type: 2}
   combatFeedbackVolume: 0.5
   gravityBreaker: {fileID: 883877298}
@@ -10517,6 +10526,38 @@ MonoBehaviour:
   impactShakeStrength: 0.12
   previewMotionWithoutTarget: 0
   logAttackFailures: 0
+--- !u!114 &883877299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883877287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d19cb4eec8b694e8ff09e8ce3e6e86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GravityGrabController
+  playerCamera: {fileID: 823454085}
+  playerRoot: {fileID: 883877294}
+  blueOutlineMaterial: {fileID: 2100000, guid: 73e9fdec7e136dc4dbb72d0de28cef52, type: 2}
+  grabKey: 113
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  grabRange: 5.77
+  maximumGrabMass: 100
+  holdDistance: 1.94
+  followStrength: 12
+  followResponse: 20
+  maxFollowSpeed: 24
+  maxFollowAcceleration: 150
+  angularDamping: 12
+  breakDistance: 10
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  throwSpeed: 32
 --- !u!1 &895036292
 GameObject:
   m_ObjectHideFlags: 0
@@ -12004,7 +12045,7 @@ GameObject:
   - component: {fileID: 1101412501}
   - component: {fileID: 1101412500}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: MainSFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13674,6 +13715,166 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1600561498}
   m_CullTransparentMesh: 1
+--- !u!1 &1606469436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1606469437}
+  - component: {fileID: 1606469440}
+  - component: {fileID: 1606469439}
+  - component: {fileID: 1606469438}
+  - component: {fileID: 1606469442}
+  - component: {fileID: 1606469441}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1606469437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 6.018, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2033266384}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1606469438
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1606469439
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1606469440
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1606469441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dd4a6fea685ce748b1b5a2b3a6e0691, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GravityGrabbable
+  hitDamage: 35
+  knockbackImpulse: 22
+  minimumHitSpeed: 6
+  activeThrowSeconds: 4
+  penetrateEnemies: 1
+  retainedSpeedAfterEnemy: 0.9
+  maximumEnemyHits: 0
+--- !u!54 &1606469442
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606469436}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1615274884
 GameObject:
   m_ObjectHideFlags: 0
@@ -14200,6 +14401,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 108060346318785623, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+      propertyPath: hitSound
+      value: 
+      objectReference: {fileID: 8300000, guid: f17f0f32b2d56ae4894667c36279202b, type: 3}
+    - target: {fileID: 108060346318785623, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+      propertyPath: mainSound
+      value: 
+      objectReference: {fileID: 1101412500}
+    - target: {fileID: 108060346318785623, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
       propertyPath: moveSpeed
       value: 7
       objectReference: {fileID: 0}
@@ -14266,7 +14475,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3128183325454233583, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 702435389}
   m_SourcePrefab: {fileID: 100100000, guid: 721854620d032b147b7ffa90c43518b6, type: 3}
 --- !u!1 &1870889479
 GameObject:
@@ -14813,7 +15025,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -3229142078273068247, guid: c37baa0b14bbea84984f553219205d54, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 5989af1cc50f65944b7dc6d70bad82ed, type: 3}
+  m_Resource: {fileID: 8300000, guid: 4fa1ca3757888f1478a70ef437e29dc3, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -15251,6 +15463,7 @@ Transform:
   - {fileID: 1001029323}
   - {fileID: 1292741841}
   - {fileID: 100628642}
+  - {fileID: 1606469437}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2044391968

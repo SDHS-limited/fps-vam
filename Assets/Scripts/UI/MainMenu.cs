@@ -25,7 +25,7 @@ public class MainMenu : MonoBehaviour
     public void startgame()
     {
         RestoreTime();
-        SceneManager.LoadScene("Stage 1");
+        SceneManager.LoadScene("Stage 1 - Gravity Prototype");
     }
 
     public void RestartGame()
