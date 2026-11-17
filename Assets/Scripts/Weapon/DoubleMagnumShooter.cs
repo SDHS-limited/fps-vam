@@ -30,6 +30,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     public MagnumMuzzleFlash muzzleFlashPrefab;
     public AudioClip      shootSound;
     [Range(0f, 1f)] public float shotVolume = 0.7f;
+    [SerializeField] private GravityGrabController gravityGrab;
  
     [Header("── 오브젝트 풀 ──")]
     public int poolSize = 20;
@@ -66,7 +67,7 @@ public class DoubleMagnumShooter : MonoBehaviour
     void Update()
     {
         if (Time.timeScale == 0f || KeyManager.instance == null) return;
-        if (Input.GetKeyDown(KeyManager.instance.keys["Attack"]) && Time.time >= nextFireTime)
+        if (Input.GetKeyDown(KeyManager.instance.keys["Attack"]) && Time.time >= nextFireTime &&  (gravityGrab == null || !gravityGrab.ConsumesFireInput))
             Shoot();
             
     }
