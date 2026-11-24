@@ -1827,7 +1827,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &316445201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9508,7 +9508,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 823764538}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 341c8f25a6ffaf04a88fd84304a6466f, type: 3}
   m_Name: 
@@ -10002,7 +10002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GravityPlayerController
   audioSource: {fileID: 1903873212}
   EnemyPrefab: {fileID: 702435377}
-  moveSpeed: 8
+  moveSpeed: 10
   jumpForce: 8
   airControl: 0.3
   gravStrength: 22
@@ -12603,7 +12603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2f8a969e4c183247b7b5e074e6daf8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmRecoil
-  recoilX: 30
+  recoilX: 90
   recoilSpeed: 50
   recoverSpeed: 20
   gun: {fileID: 0}
@@ -12847,6 +12847,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1324369928}
+  - component: {fileID: 1324369929}
   m_Layer: 0
   m_Name: RecoilPivot
   m_TagString: Untagged
@@ -12872,6 +12873,28 @@ Transform:
   - {fileID: 8123074067377605351}
   m_Father: {fileID: 1130835164}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1324369929
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324369927}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 813e90d251094ff4b8f11d8fad159507, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1342162153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12884,7 +12907,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2f8a969e4c183247b7b5e074e6daf8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmRecoil
-  recoilX: 30
+  recoilX: 90
   recoilSpeed: 50
   recoverSpeed: 20
   gun: {fileID: 0}
@@ -17957,7 +17980,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2891629097325443144}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7775289, y: -0.45515585, z: -0.38835216, w: -0.19355805}
+  m_LocalRotation: {x: 0.7775299, y: 0.45515648, z: 0.38834986, w: 0.19355662}
   m_LocalPosition: {x: 2.170528, y: 11.01082, z: -23.778261}
   m_LocalScale: {x: 129.99998, y: 129.99995, z: 129.99998}
   m_ConstrainProportionsScale: 0
@@ -17965,7 +17988,7 @@ Transform:
   - {fileID: 7485099700510735181}
   - {fileID: 1387261260}
   m_Father: {fileID: 1324369928}
-  m_LocalEulerAnglesHint: {x: 3.011, y: 52.806, z: -59.24}
+  m_LocalEulerAnglesHint: {x: -3.011, y: 128.631, z: 120.76}
 --- !u!1 &8233583731323904197
 GameObject:
   m_ObjectHideFlags: 0
@@ -18054,15 +18077,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2057470800138523419}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.78519, y: 0.45651895, z: 0.37576714, w: -0.18402785}
-  m_LocalPosition: {x: 1.4856124, y: 10.985605, z: -23.780464}
+  m_LocalRotation: {x: 0.78403413, y: -0.45595247, z: -0.37817305, w: 0.18542665}
+  m_LocalPosition: {x: 1.4786189, y: 10.985611, z: -23.781883}
   m_LocalScale: {x: 129.99998, y: 129.99997, z: 130}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7733199587441444841}
   - {fileID: 1485744403}
   m_Father: {fileID: 1324369928}
-  m_LocalEulerAnglesHint: {x: 3.101, y: -47.96, z: 58.922}
+  m_LocalEulerAnglesHint: {x: -3.101, y: -130.252, z: -121.078}
 --- !u!4 &8752568121084786002
 Transform:
   m_ObjectHideFlags: 0
