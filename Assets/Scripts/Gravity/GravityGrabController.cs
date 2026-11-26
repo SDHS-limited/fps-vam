@@ -50,7 +50,7 @@ public class GravityGrabController : MonoBehaviour
     [Header("Throw")]
     [SerializeField] private float throwSpeed = 32f;
 
-    private static readonly int GrabTrigger =
+    private static readonly int     GrabTrigger =
         Animator.StringToHash("isClick");
 
     private static readonly int ThrowTrigger =

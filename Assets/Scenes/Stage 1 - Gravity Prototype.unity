@@ -10344,7 +10344,7 @@ MonoBehaviour:
   playerCamera: {fileID: 823454085}
   playerRoot: {fileID: 883877294}
   blueOutlineMaterial: {fileID: 2100000, guid: 73e9fdec7e136dc4dbb72d0de28cef52, type: 2}
-  armAnimator: {fileID: 1670847347}
+  armAnimator: {fileID: 1324369929}
   throwReleaseDelay: 0.12
   returnStartDelay: 0.2
   grabKey: 113
@@ -13887,7 +13887,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5104715826890832728}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 247c8721ede6877458eaca46c4664d7d, type: 2}
   m_CullingMode: 0
