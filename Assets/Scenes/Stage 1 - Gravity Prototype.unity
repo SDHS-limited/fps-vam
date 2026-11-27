@@ -10320,6 +10320,11 @@ MonoBehaviour:
   slamClip: {fileID: 0}
   hitClip: {fileID: 0}
   impactPoseHold: 0.028
+  weaponImpactAnimators: []
+  freezeEnemyAnimator: 1
+  freezeEnemyNavMesh: 1
+  impactWeaponVibration: 0.002
+  impactParticlePreviewTime: 0.02
   impactRecoilPosition: {x: 0, y: 0, z: -0.018}
   impactRecoilRotation: {x: 5, y: 0, z: 0}
   usePlayerHitMarker: 1

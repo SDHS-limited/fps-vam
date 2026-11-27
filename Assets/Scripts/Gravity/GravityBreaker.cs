@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// REVFIELD - Gravity Breaker
-/// 적 조준 -> 돌진하며 양팔 뒤로 당기기 -> 짧은 정지 -> 두 팔 동시 전방 밀치기 -> 넉백 -> 복귀.
+/// 적 조준 -> 돌진하며 양팔 뒤로 당기기 -> 양팔 밀치기 -> 히트 스톱 -> 넉백 -> 복귀.
 /// 플레이어 이동 잠금과 FOV는 GravityPlayerController에서 연동합니다.
 /// Unity 6 / Rigidbody.linearVelocity / 기존 Enemy.ApplyGravityPulse() 기반.
-/// v4: 양팔 동시 밀치기, 양팔 충격 반동, 기존 돌진/FOV/명중 UI/넉백 유지.
+/// v5: 선택적 히트 스톱, 돌진 후 이동 잠금 해제, 히트 스톱 후 넉백.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class GravityBreaker : MonoBehaviour
@@ -49,10 +50,10 @@ public class GravityBreaker : MonoBehaviour
     [Tooltip("돌진하는 동안 양팔을 몸쪽으로 당기는 최소 시간")]
     [Min(0.05f)] [SerializeField] private float minimumWindupTime = 0.15f;
     [Tooltip("양팔을 당긴 자세를 유지하는 짧은 시간")]
-    [Min(0f)] [SerializeField] private float raisedHoldDuration = 0.03f;
+    [Min(0f)] [SerializeField] private float raisedHoldDuration = 0f;
     [Tooltip("두 팔을 동시에 앞으로 내미는 시간. 기존 필드명을 유지해 Inspector 값을 보존합니다.")]
     [Min(0.05f)] [SerializeField] private float slamDuration = 0.10f;
-    [Tooltip("밀치기 자세가 이 비율에 도달하면 실제 피해와 넉백을 적용")]
+    [Tooltip("밀치기 자세가 이 비율에 도달하면 타격 판정 및 히트 스톱 시작")]
     [Range(0.1f, 0.95f)] [SerializeField] private float hitTimeRatio = 0.85f;
     [Tooltip("밀치기 이후 두 팔을 원위치시키는 시간")]
     [Min(0.05f)] [SerializeField] private float recoveryDuration = 0.18f;
@@ -93,8 +94,14 @@ public class GravityBreaker : MonoBehaviour
     [SerializeField] private AudioClip hitClip;
 
     [Header("타격감 보강 (신규)")]
-    [Tooltip("두 팔이 적중했을 때 양팔 자세만 잠깐 강조합니다. 게임 시간은 멈추지 않습니다.")]
-    [Min(0f)] [SerializeField] private float impactPoseHold = 0.028f;
+    [Tooltip("두 팔 접촉 후 선택적 히트 스톱 시간. 게임 전체 시간은 멈추지 않습니다.")]
+    [Min(0f)] [SerializeField] private float impactPoseHold = 0.065f;
+    [Tooltip("팔/총기 전용 Animator만 연결하세요. 플레이어 이동/카메라 Animator는 제외합니다.")]
+    [SerializeField] private Animator[] weaponImpactAnimators;
+    [SerializeField] private bool freezeEnemyAnimator = true;
+    [SerializeField] private bool freezeEnemyNavMesh = true;
+    [Min(0f)] [SerializeField] private float impactWeaponVibration = 0.002f;
+    [Min(0f)] [SerializeField] private float impactParticlePreviewTime = 0.02f;
     [Tooltip("명중 시 양팔이 몸쪽으로 잠깐 밀리는 카메라 기준 오프셋")]
     [SerializeField] private Vector3 impactRecoilPosition = new Vector3(0f, 0f, -0.018f);
     [Tooltip("명중 시 양팔에 추가하는 카메라 기준 회전 오프셋")]
@@ -135,6 +142,9 @@ public class GravityBreaker : MonoBehaviour
     private Vector3 currentLeftAngles;
     private Vector3 currentRightPosition;
     private Vector3 currentRightAngles;
+    private readonly Dictionary<Animator, float> pausedAnimators = new Dictionary<Animator, float>();
+    private readonly Dictionary<NavMeshAgent, bool> pausedAgents = new Dictionary<NavMeshAgent, bool>();
+    private ParticleSystem pausedImpactVfx;
 
     private void Awake()
     {
@@ -288,8 +298,8 @@ public class GravityBreaker : MonoBehaviour
     /// <summary>
     /// 1) 돌진 중 두 팔을 몸쪽으로 당김
     /// 2) 양팔을 짧게 고정하여 힘을 모음
-    /// 3) 양팔을 동시에 전방으로 밀면서 실제 피해/넉백 판정 (1회)
-    /// 4) 명중하면 양팔에만 충격 반동 -> 자연스러운 원위치 복귀
+    /// 3) 양팔을 동시에 전방으로 밀면서 접촉 판정 (1회)
+    /// 4) 접촉하면 선택적 히트 스톱 -> 피해/넉백 -> 자연스러운 원위치 복귀
     /// </summary>
     private IEnumerator AttackSequence()
     {
@@ -319,6 +329,7 @@ public class GravityBreaker : MonoBehaviour
 
         rushing = false;
         FinishRushMomentum();
+        BlocksMovement = false; // 자동 돌진 이후에는 이동 입력을 막지 않음
         if (hasTarget && (rushBlocked || lockedEnemy == null || lockedCollider == null ||
             !lockedEnemy.isActiveAndEnabled || !lockedCollider.enabled ||
             DistanceToTarget() > stopDistance + 0.15f))
@@ -345,50 +356,36 @@ public class GravityBreaker : MonoBehaviour
         float pushElapsed = 0f;
         float pushSeconds = Mathf.Max(0.05f, slamDuration);
 
-        while (pushElapsed < pushSeconds)
+        while (true)
         {
             float t = Mathf.Clamp01(pushElapsed / pushSeconds);
-            float eased = t * t; // 서서히 시작했다가 전방으로 가속
+            float eased = t * t;
+            bool contactFrame = !strikeChecked && eased >= hitTimeRatio;
+            // 프레임이 건너뛰어도 설정한 타격 자세에서 정확히 멈춤.
+            float pose = contactFrame ? hitTimeRatio : eased;
             SetArms(
-                Vector3.Lerp(leftPullbackPosition, leftPushPosition, eased),
-                Vector3.Lerp(leftPullbackRotation, leftPushRotation, eased),
-                Vector3.Lerp(rightPullbackPosition, rightPushPosition, eased),
-                Vector3.Lerp(rightPullbackRotation, rightPushRotation, eased));
-            FovOffset = Mathf.Lerp(rushFovOffset, impactFovOffset, eased);
+                Vector3.Lerp(leftPullbackPosition, leftPushPosition, pose),
+                Vector3.Lerp(leftPullbackRotation, leftPushRotation, pose),
+                Vector3.Lerp(rightPullbackPosition, rightPushPosition, pose),
+                Vector3.Lerp(rightPullbackRotation, rightPushRotation, pose));
+            FovOffset = Mathf.Lerp(rushFovOffset, impactFovOffset, pose);
 
-            // 시간 비율이 아닌 실제 두 팔 자세의 전진 비율에 맞춰 타격
-            if (!strikeChecked && eased >= hitTimeRatio)
+            if (contactFrame)
             {
                 strikeChecked = true;
-                bool success = ApplyStrike();
-                if (success && impactPoseHold > 0f)
+                if (TryGetStrike(out Enemy target, out Vector3 point, out Vector3 push))
                 {
-                    Vector3 contactLeftPosition = currentLeftPosition;
-                    Vector3 contactLeftAngles = currentLeftAngles;
-                    Vector3 contactRightPosition = currentRightPosition;
-                    Vector3 contactRightAngles = currentRightAngles;
-                    float contactTimer = 0f;
-                    while (contactTimer < impactPoseHold)
-                    {
-                        SetArms(
-                            contactLeftPosition + impactRecoilPosition,
-                            contactLeftAngles + impactRecoilRotation,
-                            contactRightPosition + impactRecoilPosition,
-                            contactRightAngles + impactRecoilRotation);
-                        FovOffset = impactFovOffset;
-                        contactTimer += Time.deltaTime;
-                        yield return null;
-                    }
+                    yield return ImpactSequence(target, point, push);
+                    // 타격 자세(반동 포함)에서 바로 복귀하여 팔이 튀지 않도록 함.
+                    break;
                 }
             }
 
+            if (t >= 1f) break;
             pushElapsed += Time.deltaTime;
             yield return null;
         }
 
-        SetArms(leftPushPosition, leftPushRotation, rightPushPosition, rightPushRotation);
-        FovOffset = impactFovOffset;
-        if (!strikeChecked) ApplyStrike(); // 프레임 건너뛰어도 1회 타격 체크
         yield return RecoverArms();
         FinishAttack();
     }
@@ -523,49 +520,140 @@ public class GravityBreaker : MonoBehaviour
             horizontalVelocity + verticalVelocity;
     }
 
-    private bool ApplyStrike()
+    // 실제 접촉 시점의 대상/위치/방향을 기록. 피해와 넉백은 아직 적용하지 않음.
+    private bool TryGetStrike(out Enemy target, out Vector3 point, out Vector3 push)
     {
-        if (lockedEnemy == null || lockedCollider == null || playerCamera == null) return false;
+        target = lockedEnemy;
+        point = Vector3.zero;
+        push = Vector3.zero;
+        if (target == null || !target.isActiveAndEnabled || lockedCollider == null ||
+            !lockedCollider.enabled || playerCamera == null) return false;
 
         Vector3 origin = playerCamera.transform.position;
-        Vector3 point = lockedCollider.ClosestPoint(origin);
+        point = lockedCollider.ClosestPoint(origin);
         Vector3 towardEnemy = point - origin;
         if (towardEnemy.sqrMagnitude < 0.0001f)
             towardEnemy = lockedCollider.bounds.center - origin;
         float distance = towardEnemy.magnitude;
-
         if (distance > strikeRange || distance < 0.001f) return false;
         if (Vector3.Dot(playerCamera.transform.forward, towardEnemy / distance) < 0.30f) return false;
         if (Blocked(origin, lockedCollider.bounds.center, lockedCollider)) return false;
 
-        // 적이 놓인 중력면과 상관없이 전방으로 강하게 날리고, 약간 위쪽 성분을 섞음.
-        Vector3 push = (towardEnemy.normalized + transform.up * upwardLaunchBias).normalized;
-        float multiplier = player != null ? player.abilityDamageMultiplier : 1f;
-        bool success = lockedEnemy.ApplyGravityPulse(push, launchSpeed,
-            directDamage * multiplier, wallDamage * multiplier);
-        if (!success) return false;
+        push = (towardEnemy.normalized + transform.up * upwardLaunchBias).normalized;
+        return true;
+    }
 
-        // 기존 체력/명중 피드백 시스템에 연결. Enemy.ApplyGravityPulse가 true를 돌려준 경우만 출력합니다.
-        if (usePlayerHitMarker && player != null)
-            player.ShowHitMarker(false);
+    private IEnumerator ImpactSequence(Enemy target, Vector3 point, Vector3 push)
+    {
+        BlocksMovement = false;
+        FovOffset = impactFovOffset;
+        float multiplier = player != null ? player.abilityDamageMultiplier : 1f;
+
+        Vector3 leftContact = currentLeftPosition + impactRecoilPosition;
+        Vector3 rightContact = currentRightPosition + impactRecoilPosition;
+        Vector3 leftAngles = currentLeftAngles + impactRecoilRotation;
+        Vector3 rightAngles = currentRightAngles + impactRecoilRotation;
+        SetArms(leftContact, leftAngles, rightContact, rightAngles);
+
+        // 접촉 효과는 먼저 재생. 오디오와 카메라 조작은 정지하지 않음.
         PlaySound(hitClip);
         if (impactBassClip != null && audioSource != null)
             audioSource.PlayOneShot(impactBassClip, impactBassVolume);
-
-        if (impactVfx != null)
-        {
-            ParticleSystem fx = Instantiate(impactVfx, point, Quaternion.LookRotation(-push));
-            fx.Play();
-            // 일회성 VFX가 씬에 누적되지 않도록 자동 제거합니다.
-            ParticleSystem.MainModule main = fx.main;
-            if (!main.loop)
-                Destroy(fx.gameObject, Mathf.Max(0.3f, main.duration + main.startLifetime.constantMax + 0.15f));
-        }
-
         CameraShake cameraShake = playerCamera.GetComponent<CameraShake>();
         if (cameraShake != null)
             cameraShake.Shake(impactShakeDuration, impactShakeStrength);
-        return true;
+
+        if (impactVfx != null)
+        {
+            pausedImpactVfx = Instantiate(impactVfx, point, Quaternion.LookRotation(-push));
+            // 처음 몇 밀리초의 파티클을 보여 준 다음 정지.
+            pausedImpactVfx.Simulate(impactParticlePreviewTime, true, true, true);
+            pausedImpactVfx.Pause(true);
+        }
+
+        if (impactPoseHold > 0f)
+        {
+            FreezeImpactActors(target);
+            float elapsed = 0f;
+            while (elapsed < impactPoseHold)
+            {
+                // 무기 Pivot만 아주 작게 진동. 플레이어 Rigidbody와 카메라는 건드리지 않음.
+                float fade = 1f - Mathf.Clamp01(elapsed / impactPoseHold);
+                float vibration = Mathf.Sin(elapsed * 2f * Mathf.PI * 35f)
+                    * impactWeaponVibration * fade;
+                Vector3 offset = Vector3.right * vibration;
+                SetArms(leftContact + offset, leftAngles,
+                    rightContact - offset, rightAngles);
+                yield return null;
+                // 실제 게임이 일시정지된 동안에는 히트 스톱도 진행하지 않음.
+                if (Time.timeScale > 0f) elapsed += Time.unscaledDeltaTime;
+            }
+        }
+
+        SetArms(leftContact, leftAngles, rightContact, rightAngles);
+        // AI/Animator를 먼저 복구해야 ApplyGravityPulse가 이동 상태를 정상 변경할 수 있음.
+        RestoreImpactActors(true);
+        if (target != null && target.isActiveAndEnabled)
+        {
+            bool success = target.ApplyGravityPulse(push, launchSpeed,
+                directDamage * multiplier, wallDamage * multiplier);
+            if (success && usePlayerHitMarker && player != null)
+                player.ShowHitMarker(false);
+        }
+    }
+
+    private void FreezeImpactActors(Enemy target)
+    {
+        if (weaponImpactAnimators != null)
+            foreach (Animator animator in weaponImpactAnimators) PauseAnimator(animator);
+        if (target == null) return;
+
+        if (freezeEnemyAnimator)
+            foreach (Animator animator in target.GetComponentsInChildren<Animator>(true))
+                PauseAnimator(animator);
+        if (freezeEnemyNavMesh)
+        {
+            foreach (NavMeshAgent agent in target.GetComponentsInChildren<NavMeshAgent>())
+            {
+                if (!agent.isActiveAndEnabled || !agent.isOnNavMesh || pausedAgents.ContainsKey(agent)) continue;
+                pausedAgents.Add(agent, agent.isStopped);
+                agent.isStopped = true;
+            }
+        }
+    }
+
+    private void PauseAnimator(Animator animator)
+    {
+        if (animator == null || pausedAnimators.ContainsKey(animator)) return;
+        pausedAnimators.Add(animator, animator.speed);
+        animator.speed = 0f;
+    }
+
+    private void RestoreImpactActors(bool releaseVfx)
+    {
+        foreach (var pair in pausedAnimators)
+            if (pair.Key != null) pair.Key.speed = pair.Value;
+        pausedAnimators.Clear();
+        foreach (var pair in pausedAgents)
+            if (pair.Key != null && pair.Key.isActiveAndEnabled && pair.Key.isOnNavMesh)
+                pair.Key.isStopped = pair.Value;
+        pausedAgents.Clear();
+
+        if (pausedImpactVfx == null) return;
+        if (releaseVfx)
+        {
+            pausedImpactVfx.Play(true);
+            float lifetime = 0.3f;
+            foreach (ParticleSystem particle in pausedImpactVfx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                ParticleSystem.MainModule main = particle.main;
+                lifetime = Mathf.Max(lifetime, main.duration + main.startDelay.constantMax
+                    + main.startLifetime.constantMax + 0.15f);
+            }
+            Destroy(pausedImpactVfx.gameObject, lifetime);
+        }
+        else Destroy(pausedImpactVfx.gameObject);
+        pausedImpactVfx = null;
     }
 
     private void SetArms(Vector3 leftPosition, Vector3 leftAngles,
@@ -653,6 +741,7 @@ public class GravityBreaker : MonoBehaviour
 
     private void FinishAttack()
     {
+        RestoreImpactActors(false); // 사망/비활성화/취소 시에도 정지 상태 해제
         rushing = false;
         IsActive = false;
         BlocksMovement = false;
